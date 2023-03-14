@@ -147,22 +147,22 @@ In ASCARIS representations, dimensions 1-5 correspond to datapoint identifier, 6
 
 | Order of dimension | Column name in the output file  | Description |  Source | 
 | ------------- | ------------- | ------------- | ------------- |
-| 1 | prot_uniprotAcc | UniProt accession | UniProtKB/Swiss-Prot (Humsavar), ClinVar, PMD |
-| 2 | wt_residue | Wild type residue | UniProtKB/Swiss-Prot (Humsavar), ClinVar, PMD |
-| 3 | mut_residue | Mutated residue | UniProtKB/Swiss-Prot (Humsavar), ClinVar, PMD |
-| 4 | position | Variation position | UniProtKB/Swiss-Prot (Humsavar), ClinVar, PMD |
+| 1 | prot_uniprotAcc | UniProt accession | Metadata obtained from UniProtKB/Swiss-Prot |
+| 2 | wt_residue | Wild type residue | Data obtained from UniProtKB/Swiss-Prot (humsavar), ClinVar, PMD |
+| 3 | mut_residue | Mutated residue | Data obtained from UniProtKB/Swiss-Prot (humsavar), ClinVar, PMD |
+| 4 | position | Variation position | Data obtained from UniProtKB/Swiss-Prot (humsavar), ClinVar, PMD |
 | 5 | meta_merged | Datapoint identifier (UniProt accession-WT Residue-VariationPosition-Mutated Residue) | - |
-| 6 | composition | Change in composition values upon the occurrence of variation. Composition is defined as the atomic weight ratio of hetero (non-carbon) elements in end groups or rings to carbons in the side chain.  | Aboderin, 1971, Goldsack and Chalifoux, 1973, Grantham, 1974 |
-| 7 | polarity | Change in polarity values upon variation. | Aboderin, 1971, Goldsack and Chalifoux, 1973, Grantham, 1974 |
-| 8 | volume | Change in volume values upon variation. | Aboderin, 1971, Goldsack and Chalifoux, 1973, Grantham, 1974 |
-| 9 | granthamScore | Change in Grantham scores (the combination of composition, polarity and volume) values upon variation. | Grantham, 1974 |
-| 10 | domains_all | InterPro Domain IDs of all domains found in the dataset  | InterPro |
-| 11 | domains_sig | InterPro Domain IDs of significant domains in the dataset. Domains that are not found to be significant in Fisher's Exact Test are labelled as "NULL". | Newly engineered |
-| 12 | domains_3Ddist | Shortest Euclidian distance between the domain and the variation site. | Newly engineered |
+| 6 | composition | Change in composition values upon the occurrence of variation. Composition is defined as the atomic weight ratio of hetero (non-carbon) elements in end groups or rings to carbons in the side chain. | Literature |
+| 7 | polarity | Change in polarity values upon variation. | Literature |
+| 8 | volume | Change in volume values upon variation. | Literature |
+| 9 | granthamScore | Change in Grantham scores (the combination of composition, polarity and volume) values upon variation. | Literature |
+| 10 | domains_all | InterPro Domain IDs of all domains found in the dataset  | Data obtained from InterPro |
+| 11 | domains_sig | InterPro Domain IDs of significant domains in the dataset. Domains that are not found to be significant in Fisher's Exact Test are labelled as "NULL". | Data obtained from InterPro |
+| 12 | domains_3Ddist | Shortest Euclidian distance between the domain and the variation site. | A newly engineered feature (data obtained from PDB/AlphaFold and InterPro) |
 | 13 | sasa | Solvent accessible surface area values. | FreeSASA |
 | 14 | location_3state | Caterozied location of the variation in the structure: surface, core or interface. | FreeSASA, InteractomeInsider |
-| 15-44 |disulfide_bin, intMet_bin,intramembrane_bin, naturalVariant_bin, dnaBinding_bin, activeSite_bin, nucleotideBinding_bin, lipidation_bin, site_bin, transmembrane_bin, crosslink_bin, mutagenesis_bin, strand_bin, helix_bin, turn_bin, metalBinding_bin, repeat_bin, caBinding_bin, topologicalDomain_bin, bindingSite_bin, region_bin, signalPeptide_bin, modifiedResidue_bin, zincFinger_bin, motif_bin, coiledCoil_bin, peptide_bin, transitPeptide_bin, glycosylation_bin, propeptide_bin | Positional sequence annotations, binary correspondence-based (30 different types of annotations, each one on a different dimension). Categories: 0: annotatation does not exist on the protein, 1: annotation is presented, but the variation is not on the annotated site, 2: variation is on the annotated site. | Newly engineered |
-| 45-74 |disulfide_dist, intMet_dist, intramembrane_dist, naturalVariant_dist, dnaBinding_dist, activeSite_dist, nucleotideBinding_dist, lipidation_dist, site_dist, transmembrane_dist, crosslink_dist, mutagenesis_dist, strand_dist, helix_dist, turn_dist, metalBinding_dist, repeat_dist, caBinding_dist, topologicalDomain_dist, bindingSite_dist, region_dist, signalPeptide_dist, modifiedResidue_dist, zincFinger_dist, motif_dist, coiledCoil_dist, peptide_dist, transitPeptide_dist, glycosylation_dist, propeptide_dist | Positional sequence annotations, distance-based (the spatial distance between the annotated residue and the mutated residue, in the protein structure, for 30 different types of annotations, each one on a different dimension), in terms of Angstroms. | Newly engineered |
+| 15-44 |disulfide_bin, intMet_bin,intramembrane_bin, naturalVariant_bin, dnaBinding_bin, activeSite_bin, nucleotideBinding_bin, lipidation_bin, site_bin, transmembrane_bin, crosslink_bin, mutagenesis_bin, strand_bin, helix_bin, turn_bin, metalBinding_bin, repeat_bin, caBinding_bin, topologicalDomain_bin, bindingSite_bin, region_bin, signalPeptide_bin, modifiedResidue_bin, zincFinger_bin, motif_bin, coiledCoil_bin, peptide_bin, transitPeptide_bin, glycosylation_bin, propeptide_bin | Positional sequence annotations, binary correspondence-based (30 different types of annotations, each one on a different dimension). Categories: 0: annotatation does not exist on the protein, 1: annotation is presented, but the variation is not on the annotated site, 2: variation is on the annotated site. | Newly engineered features (data obtained from UniProtKB) |
+| 45-74 |disulfide_dist, intMet_dist, intramembrane_dist, naturalVariant_dist, dnaBinding_dist, activeSite_dist, nucleotideBinding_dist, lipidation_dist, site_dist, transmembrane_dist, crosslink_dist, mutagenesis_dist, strand_dist, helix_dist, turn_dist, metalBinding_dist, repeat_dist, caBinding_dist, topologicalDomain_dist, bindingSite_dist, region_dist, signalPeptide_dist, modifiedResidue_dist, zincFinger_dist, motif_dist, coiledCoil_dist, peptide_dist, transitPeptide_dist, glycosylation_dist, propeptide_dist | Positional sequence annotations, distance-based (the spatial distance between the annotated residue and the mutated residue, in the protein structure, for 30 different types of annotations, each one on a different dimension), in terms of Angstroms. | Newly engineered features (data obtained from PDB/AlphaFold and UniProtKB) |
 
 ## Please refer for more information:
 
