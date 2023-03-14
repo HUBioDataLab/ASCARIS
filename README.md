@@ -8,8 +8,6 @@ In this study, we propose ASCARIS (Annotation and StruCture-bAsed RepresentatIon
 
 We statistically analyzed the relationship between these features and the consequences of variations and found that each carries information in this regard. To investigate potential applications of ASCARIS, we trained variant effect predictor models that utilize our SAV representations as input. We carried out an ablation study and a comparison against the state-of-the-art methods over well-known benchmark datasets. We observed that ASCARIS has a competing and complementary performance against widely-used predictors. ASCARIS can be used either alone or in combination with other approaches, to represent SAVs from a functional perspective universally.
 
-![image](https://user-images.githubusercontent.com/13165170/224971175-5a1dab9c-e8df-4da8-ab9b-8e67b34a399e.png)
-
 
 <p align="center">
 
