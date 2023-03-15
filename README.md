@@ -64,6 +64,13 @@ Datasets that are used to create machine learning models are provided in **datas
 - **training_uptodate_full_2014selected_wo_varibench** : 2014 subset of the training set, test datapoints from Varibench removed.
 - **training_uptodate_full_2014selected_wo_psnp** : 2014 subset of the training set, test datapoints from PredictSNP removed.
 - **training_uptodate_full_2014selected_wo_mt** : 2014 subset of the training set, test datapoints from MutationTaster removed.
+- **featurevector_brca1_xx** : Feature vector created for benchmarking BRCA1 variations. AF and PDB versions, as well as imputed and not imputed versions are found in the relevant folders.
+- **featurevector_p53_xx** : Feature vector created for benchmarking P53 variations. AF and PDB versions, as well as imputed and not imputed versions are found in the relevant folders.
+- **featurevector_calm1_xx** : Feature vector created for benchmarking CALM1 variations. AF and PDB versions, as well as imputed and not imputed versions are found in the relevant folders.
+- **training_uptodate_full_pdb_imputed_wo3genes** : Imputed PDB training feature vector without datapoints from BRCA1, P53 and CALM1.File is zipped due to size limitations.
+- **training_uptodate_full_pdb_raw_wo3genes** : Non-imputed PDB training feature vector without datapoints from BRCA1, P53 and CALM1.
+- **training_uptodate_full_alphafold_imputed_wo3genes** : Imputed AlphaFold training feature vector without datapoints from BRCA1, P53 and CALM1. File is zipped due to size limitations.
+- **training_uptodate_full_alphafold_raw_wo3genes** : Non-imputed AlphaFold training feature vector without datapoints from BRCA1, P53 and CALM1.
 
 ## Usage
 
