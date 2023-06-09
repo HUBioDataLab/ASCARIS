@@ -34,8 +34,8 @@ Inside **input_files** folder, users can find files that are necessary to run th
 
 - **swissmodel_structures.txt.zip** : Includes summary file for Swiss-Model structures. Swiss-Model summary (INDEX-metadata) files are downloaded separately for each organism from https://swissmodel.expasy.org/repository, and merged into a single file by running create_swissmodelSummary.py code file. Generated file is uploaded to GitHub as a zip file, thus it must be unzipped to input_files folder prior to usage. Alternatively it can be downloaded from [here](https://drive.google.com/drive/u/1/folders/1pJyXcguupyGggl25fzbRWwwqC6qUbDka). If needed, the user can create an updated file by running script create_swissmodelSummary.py in the folder where downloaded newly meta-data is found. Relevant file will be created under /input_files.
 ```
-cd ascaris
-python3 codes/create_swissmodelSummary.py -folder_name folder_to_meta_data
+cd ASCARIS
+python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
 ```
 
 - **domains.txt** : Includes InterPro domains simplified as in the following order *(tab separated)* --> 
@@ -44,8 +44,8 @@ python3 codes/create_swissmodelSummary.py -folder_name folder_to_meta_data
 - **H_sapiens_interfacesHQ.txt** :  High confidence interfaces downloaded from [Interactome Insider](http://interactomeinsider.yulab.org/downloads.html) for *Homo sapiens*
 - **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). Please download the '.tar' file in **input_files folder** and run get_alphafoldStructures.py to untar the structures and create alphafold_summary file. The folder in the repository contains 100 structure files for demo purposes.
 ```
-cd ascaris
-python3 codes/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
+cd ASCARIS
+python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
 ```
 - **alphafold_summary**: Processed data for AlphaFold structures. Includes protein identifier, chain id, sequence, model count for each entry.
 
