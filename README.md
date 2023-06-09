@@ -120,7 +120,7 @@ python3 code/main.py -o 1 -i input_files/sample_input.txt
 ```
 
 - **pdb/pdb_structures** : Contains downloaded structure files from PDB for input proteins when applicable. If the user has a folder wherein PDB structures are stored, this folder might be used to decrease run time. In this case, please change the extension of files in the folder to '.txt' and rename the folder as pdb/pdb_structures.
-- **pdb/wissmodel_structures** : Contains downloaded model files from SwissModel for input proteins when applicable.
+- **pdb/swissmodel_structures** : Contains downloaded model files from SwissModel for input proteins when applicable.
 - **pdb/modbase_structures** : Contains downloaded model files from ModBase for input proteins when applicable. Each file contains all models related to one protein.
 - **pdb/modbase_structures_individual** : Contains downloaded model files from ModBase for input proteins when applicable. Each file contains individual models related to one protein.
 - **pdb/alignment_files** : Contains alignment files of protein sequences. 
