@@ -109,7 +109,7 @@ Upon running ASCARIS, **out_files** folder will be created. Depending on the sel
 python3 code/main.py -s 1 -i input_files/sample_input.txt
 ```
 
-**Upon running the line above, the folllowing files will be generated**: 
+Upon running the line above, the folllowing files will be generated: 
 
 - **pdb/pdb_structures** : Contains downloaded structure files from PDB for input proteins when applicable. If the user has a folder wherein PDB structures are stored, please change the name of that folder to pdb_structures and the extension of files to '.txt' to decrease run time. 
 - **pdb/swissmodel_structures** : Contains downloaded model files from SwissModel for input proteins when applicable.
@@ -129,6 +129,8 @@ python3 code/main.py -s 1 -i input_files/sample_input.txt
 ```
 python3 code/main.py -s 2 -i input_files/sample_input.txt
 ```
+
+Upon running the line above, the folllowing files will be generated: 
 
 - **alphafold/alignment_files** : Contains alignment of UniProt sequence files.
 - **alphafold/3D_alignment** :  Contains alignment of UniProt sequence files to PDB sequence files.
