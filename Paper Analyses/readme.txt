@@ -33,6 +33,3 @@ vector without datapoints from BRCA1, P53 and CALM1.
 - **psnp_test** : Benchmark set obtained from PredictSNP database.
 - **swiss_test** : Benchmark set obtained from SwissVar database.
 - **varibench_test** : Benchmark set obtained from VariBench database.
-
-
-
