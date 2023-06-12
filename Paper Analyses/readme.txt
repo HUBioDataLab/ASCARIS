@@ -1,4 +1,4 @@
-The files in this folder concerns the various analyses conducted throughout the ASCARIS
+The files in these folders concerns the various analyses conducted throughout the ASCARIS
 paper. They are used to create machine learning models. Each file has a _raw and _imputed 
 version. In the latter one the empty values are imputed with the mean values of each 
 property obtained from the main training set. Feature vectors that are created using 
