@@ -8,7 +8,7 @@ structure sources are given at the end of each file name, hence is not written s
 here.
 
 
-- __training_uptodate_full.txt__ : Full training dataset obtained from UniProt, PMD and ClinVar.
+- **training_uptodate_full.txt** : Full training dataset obtained from UniProt, PMD and ClinVar.
 - **training_uptodate_full_2014selected** : 2014 subset of the training set.
 - **training_uptodate_full_2014selected_wo_mt** : 2014 subset of the training set, test 
 datapoints from MutationTaster removed.
