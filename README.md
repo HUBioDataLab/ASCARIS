@@ -46,7 +46,7 @@ python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
   [uniprotID      domainID        domainStartPosition     domainEndPosition]
 - **significant_domains** :  Selected domains from *domains.txt* file according to Fisher's Exact Test result. Fisher's Exact Test applied to all domains in the training test to assess their significance with respect to the the deleteriousness outcome. p_values is chosen as 0.01.
 - **H_sapiens_interfacesHQ.txt** :  High confidence interfaces downloaded from [Interactome Insider](http://interactomeinsider.yulab.org/downloads.html) for *Homo sapiens*
-- **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). **Please download the '.tar' file in input_files folder** and **run get_alphafoldStructures.py** to untar the structures and create alphafold_summary file. The folder in this repository contains 100 structure files for demo purposes, hence the users need to download the complete set of AlphaFold structures prior to running ASCARIS. 
+- **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). **Please download the '.tar' file to the input_files folder** and **run get_alphafoldStructures.py** to untar the structures and create alphafold_summary file. The current folder in this repository contains 100 AlphaFold model files for demo purposes, hence the users need to download the complete set of AlphaFold structures prior to running ASCARIS. 
 ```
 cd ASCARIS
 python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
@@ -103,7 +103,7 @@ P23560	V	66	M
 Q00889	H	85	D
 ```
 
-Upon running ASCARIS, **out_files** folder will be created. Depending on the selected arguments, two type of sub-folders will be created. 
+Upon running ASCARIS, **out_files** folder will be created. Depending on the selected arguments, two type of sub-folders (PDB and AlphaFold) will be created. 
 
 *__If the user wants to run ASCARIS using PDB-ModBase-SwissModel structures, the argument -s should be set to 1:__*
 
