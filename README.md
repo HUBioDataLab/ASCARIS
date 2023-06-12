@@ -143,7 +143,8 @@ Upon running the line above, the folllowing files will be generated:
 
 ## Description of the Dimensions of the Output Representations
 
-<img width="1284" alt="ASCARIS_Representation_Dimensions" src="https://user-images.githubusercontent.com/13165170/198850505-2a493c6a-a55d-43f1-af81-1c2fff5ac7ed.png">
+<img width="1503" alt="ASCARIS_Representation_Dimensions" src="https://github.com/HUBioDataLab/ASCARIS/assets/26777185/4d560f9f-d847-44c7-8959-cb7f14927012">
+
 
 In ASCARIS representations, dimensions 1-5 correspond to datapoint identifier, 6-9 correspond to physicochemical property values, 10-12 correspond to domain-related information, 13-14 correspond to information regarding variation's position on the protein (both the sasa value and the categorization), 15-44 correspond to binary correspondence between variations and different types of positional annotations (1 dimension for each annotation type), 45-74 correspond to spatial (Euclidian) distances between variations and different types of positional annotations (1 dimension for each annotation type).
 
