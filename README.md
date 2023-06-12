@@ -7,8 +7,7 @@ Genomic variations may cause deleterious effects on protein functionality and pe
 ASCARIS (Annotation and StruCture-bAsed RepresentatIon of Single amino acid variations) is a tool for the featurization (i.e., quantitative representation) of SAVs, which could be used for a variety of purposes, such as predicting their functional effects or building multi-omics-based integrative models. ASCARIS utilizes the correspondence between the location of the SAV on the sequence and 30 different types of positional feature annotations (e.g., active/lipidation/glycosylation sites; calcium/metal/DNA binding, inter/transmembrane regions, etc.) from UniProt, along with structural features and the change in physicochemical properties, using models from PDB and AlphaFold-DB. It constructs a 74-dimensional feature set to represent a given SAV. The main novelty of this work lies in the construction of reusable numerical representations of variations using functional annotations.
 
 For more information on the construction of the feature vector, the statistical analysis of different features, and machine learning models trained on the feature vectors that predicts the effect of SAVs, please refer to the main article:
-
-Cankara, F. & Doğan, T. (2022). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. bioRxiv, 2022.11.03.514934 [currently under consideration in a peer reviewed journal].
+Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *bioRxiv*, 514934v1. [Link](https://www.biorxiv.org/content/10.1101/2022.11.03.514934v1)
 
 <p align="center">
 
@@ -84,9 +83,9 @@ python3 code/main.py -s 2 -i input_files/sample_input.txt
 -impute :  imputation of NaN values. Imputation values are median values of corresponding columns. Default True </br>
 
 
-### Sample Run
+### Sample Output 
 
-Contains results of a sample run from **sample_input.txt** input file. Example input file format is shown below. Columns represent UniProt ID of the protein, wild type amino acid, position of the amino acid change and mutated amino acid, respectively. Input file must be given without a header.
+This folder contains demo results for ASCARIS with **sample_input.txt** file. Example input file format is shown below. Columns represent UniProt ID of the protein, wild type amino acid, position of the amino acid change and mutated amino acid, respectively. Input file must be given **without** a header.
 
 
 ```
@@ -102,15 +101,17 @@ P23560	V	66	M
 Q00889	H	85	D
 ```
 
-Files in **out_files** folder are created by running the script **main.py** on **sample_input.txt** file. Depending on the input selection, two type of folders are created. 
+Upon running ASCARIS, **out_files** folder will be created. Depending on the selected arguments, two type of sub-folders will be created. 
 
-*If PDB-ModBase-SwissModel structures are selected:*
+**If the user wants to run ASCARIS using PDB-ModBase-SwissModel structures, the argument -s should be set to 1:**
 
 ```
-python3 code/main.py -o 1 -i input_files/sample_input.txt
+python3 code/main.py -s 1 -i input_files/sample_input.txt
 ```
 
-- **pdb/pdb_structures** : Contains downloaded structure files from PDB for input proteins when applicable. If the user has a folder wherein PDB structures are stored, this folder might be used to decrease run time. In this case, please change the extension of files in the folder to '.txt' and rename the folder as pdb/pdb_structures.
+**Upon running the line above, the folllowing files will be generated**: 
+
+- **pdb/pdb_structures** : Contains downloaded structure files from PDB for input proteins when applicable. If the user has a folder wherein PDB structures are stored, please change the name of that folder to pdb_structures and the extension of files to '.txt' to decrease run time. 
 - **pdb/swissmodel_structures** : Contains downloaded model files from SwissModel for input proteins when applicable.
 - **pdb/modbase_structures** : Contains downloaded model files from ModBase for input proteins when applicable. Each file contains all models related to one protein.
 - **pdb/modbase_structures_individual** : Contains downloaded model files from ModBase for input proteins when applicable. Each file contains individual models related to one protein.
@@ -123,10 +124,10 @@ python3 code/main.py -o 1 -i input_files/sample_input.txt
 
 
 
-*If AlphaFold structures are selected:*
+**If the user wants to run ASCARIS using Alphafold models, the argument -s should be set to 2:**
 
 ```
-python3 code/main.py -o 2 -i input_files/sample_input.txt impute False
+python3 code/main.py -s 2 -i input_files/sample_input.txt
 ```
 
 - **alphafold/alignment_files** : Contains alignment of UniProt sequence files.
