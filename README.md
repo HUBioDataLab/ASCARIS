@@ -2,12 +2,13 @@
 
 ## Abstract 
 
-Genomic variations may cause deleterious effects on protein functionality and perturb biological processes. Elucidating the effects of variations is critical for developing novel treatment strategies for diseases of genetic origin. Computational approaches have been aiding the work in this field by modeling and analyzing the mutational landscape. However, new approaches are required, especially for accurate representation and data-centric analysis of sequence variations.
+Genomic variations may cause deleterious effects on protein functionality and perturb biological processes. Elucidating the effects of variations is critical for developing novel treatment strategies for diseases of genetic origin. 
 
-In this study, we propose ASCARIS (Annotation and StruCture-bAsed RepresentatIon of Single amino acid variations), a method for the featurization (i.e., quantitative representation) of SAVs, which could be used for a variety of purposes, such as predicting their functional effects or building multi-omics-based integrative models. ASCARIS utilizes the correspondence between the location of the SAV on the sequence and 30 different types of positional feature annotations (e.g., active/lipidation/glycosylation sites; calcium/metal/DNA binding, inter/transmembrane regions, etc.) from UniProt, along with structural features and the change in physicochemical properties, using models from PDB and AlphaFold-DB. We also mapped the mutated and annotated residues to the 3-D plane and calculated the spatial distances between them in order to account for the functional changes caused by variations in positions close to the functionally essential ones. Finally, we constructed a 74-dimensional feature set to represent a given SAV. The main novelty of this work lies in the construction of reusable numerical representations of variations using functional annotations.
+ASCARIS (Annotation and StruCture-bAsed RepresentatIon of Single amino acid variations) is a tool for the featurization (i.e., quantitative representation) of SAVs, which could be used for a variety of purposes, such as predicting their functional effects or building multi-omics-based integrative models. ASCARIS utilizes the correspondence between the location of the SAV on the sequence and 30 different types of positional feature annotations (e.g., active/lipidation/glycosylation sites; calcium/metal/DNA binding, inter/transmembrane regions, etc.) from UniProt, along with structural features and the change in physicochemical properties, using models from PDB and AlphaFold-DB. It constructs a 74-dimensional feature set to represent a given SAV. The main novelty of this work lies in the construction of reusable numerical representations of variations using functional annotations.
 
-We statistically analyzed the relationship between these features and the consequences of variations and found that each carries information in this regard. To investigate potential applications of ASCARIS, we trained variant effect predictor models that utilize our SAV representations as input. We carried out an ablation study and a comparison against the state-of-the-art methods over well-known benchmark datasets. We observed that ASCARIS has a competing and complementary performance against widely-used predictors. ASCARIS can be used either alone or in combination with other approaches, to represent SAVs from a functional perspective universally.
+For more information on the construction of the feature vector, the statistical analysis of different features, and machine learning models trained on the feature vectors that predicts the effect of SAVs, please refer to the main article:
 
+Cankara, F. & Doğan, T. (2022). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. bioRxiv, 2022.11.03.514934 [currently under consideration in a peer reviewed journal].
 
 <p align="center">
 
@@ -28,11 +29,15 @@ We statistically analyzed the relationship between these features and the conseq
 
 ## Descriptions of folders and files in the ASCARIS repository 
 
+### Paper Analyses
+
+All files used to create feature vectors that are used in the main ASCARIS paper are presented under **Paper Analyses** directory. PDB and AlphaFold contains files that are created using PDB structures and AlphaFold models, respectively.
+
 ### Input Files 
 
-Inside **input_files** folder, users can find files that are necessary to run the code. Below, explanations of the files can be found.
+Files that are necessary to run the ASCARIS tool are found under **input_files** folder.
 
-- **swissmodel_structures.txt.zip** : Includes summary file for Swiss-Model structures. Swiss-Model summary (INDEX-metadata) files are downloaded separately for each organism from https://swissmodel.expasy.org/repository, and merged into a single file by running create_swissmodelSummary.py code file. Generated file is uploaded to GitHub as a zip file, thus it must be unzipped to input_files folder prior to usage. Alternatively it can be downloaded from [here](https://drive.google.com/drive/u/1/folders/1pJyXcguupyGggl25fzbRWwwqC6qUbDka). If needed, the user can create an updated file by running script create_swissmodelSummary.py in the folder where downloaded newly meta-data is found. Relevant file will be created under /input_files.
+- **swissmodel_structures.txt.zip** : Includes summary file for Swiss-Model structures. Swiss-Model summary (INDEX-metadata) files are downloaded separately for each organism from https://swissmodel.expasy.org/repository, and merged into a single file by running create_swissmodelSummary.py code file. Generated file is uploaded to GitHub as a zip file, thus **it must be unzipped to input_files folder prior to usage**. Alternatively it can be downloaded [here](https://drive.google.com/drive/u/1/folders/1pJyXcguupyGggl25fzbRWwwqC6qUbDka). If needed, the user can create an updated file by running script **create_swissmodelSummary.py** in the directory in which newly downloaded meta-data is found. Relevant output file will be created under /input_files.
 ```
 cd ASCARIS
 python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
@@ -42,28 +47,37 @@ python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
   [uniprotID      domainID        domainStartPosition     domainEndPosition]
 - **significant_domains** :  Selected domains from *domains.txt* file according to Fisher's Exact Test result. Fisher's Exact Test applied to all domains in the training test to assess their significance with respect to the the deleteriousness outcome. p_values is chosen as 0.01.
 - **H_sapiens_interfacesHQ.txt** :  High confidence interfaces downloaded from [Interactome Insider](http://interactomeinsider.yulab.org/downloads.html) for *Homo sapiens*
-- **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). Please download the '.tar' file in **input_files folder** and run get_alphafoldStructures.py to untar the structures and create alphafold_summary file. The folder in the repository contains 100 structure files for demo purposes.
+- **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). **Please download the '.tar' file in input_files folder** and **run get_alphafoldStructures.py** to untar the structures and create alphafold_summary file. The folder in this repository contains 100 structure files for demo purposes, hence the users need to download the complete set of AlphaFold structures prior to running ASCARIS. 
 ```
 cd ASCARIS
 python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
 ```
 - **alphafold_summary**: Processed data for AlphaFold structures. Includes protein identifier, chain id, sequence, model count for each entry.
 
-## Usage
+## ASCARIS Usage
 
-Please unzip required files prior to running the code.
+Please unzip required files prior to running the code as described in the **Input Files** section.
+ASCARIS can be run in three ways.
+
+1. Run ASCARIS for only one datapoint:
 
 ```
-python3 code/main.py -o 1 -i P13637-T-613-M -impute True
-python3 code/main.py -o 2 -i 'P13637-T-613-M, Q9Y4W6-N-432-T, Q9Y4W6-N-432-T' impute False
-python3 code/main.py -o 2 -i input_files/sample_input.txt
+python3 code/main.py -s 1 -i P13637-T-613-M -impute True
+```
+2. Run ASCARIS for more than one datapoints:
+```
+python3 code/main.py -s 2 -i 'P13637-T-613-M, Q9Y4W6-N-432-T, Q9Y4W6-N-432-T' impute False
+```
 
+3. Run ASCARIS on a tab-separated file containing SAV information. Please see sample_input.txt for the format.
+```
+python3 code/main.py -s 2 -i input_files/sample_input.txt
 ```
 ### Input Arguments
 
--o :  selection for input structure data. (1: Use PDB-ModBase-SwissModel structures, 2: Use AlphaFold Structures) </br>
+-s :  selection for input structure data. (1: Use PDB-ModBase-SwissModel structures, 2: Use AlphaFold Structures) </br>
 
--i :  input variation. Enter datapoint to predict or input file name in the following form:</br>
+-i :  input option. Enter datapoint to predict or input file name in the following form:</br>
 - *Option 1: Comma-separated list of idenfiers (UniProt ID-wt residue-position-mutated residue (e.g. Q9Y4W6-N-432-T or Q9Y4W6-N-432-T, Q9Y4W6-N-432-T))*  
 - *Option 2: Enter tab-separated file path*
 
