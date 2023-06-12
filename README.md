@@ -103,7 +103,7 @@ Q00889	H	85	D
 
 Upon running ASCARIS, **out_files** folder will be created. Depending on the selected arguments, two type of sub-folders will be created. 
 
-**If the user wants to run ASCARIS using PDB-ModBase-SwissModel structures, the argument -s should be set to 1:**
+*__If the user wants to run ASCARIS using PDB-ModBase-SwissModel structures, the argument -s should be set to 1:__*
 
 ```
 python3 code/main.py -s 1 -i input_files/sample_input.txt
@@ -124,7 +124,7 @@ python3 code/main.py -s 1 -i input_files/sample_input.txt
 
 
 
-**If the user wants to run ASCARIS using Alphafold models, the argument -s should be set to 2:**
+*__If the user wants to run ASCARIS using Alphafold models, the argument -s should be set to 2:__*
 
 ```
 python3 code/main.py -s 2 -i input_files/sample_input.txt
