@@ -49,29 +49,6 @@ python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
 ```
 - **alphafold_summary**: Processed data for AlphaFold structures. Includes protein identifier, chain id, sequence, model count for each entry.
 
-
-### Datasets
-
-Datasets that are used to create machine learning models are provided in **datasets** folder. Each file has a _raw and _imputed version, in which in the latter one the empty values are imputed with the mean values of each property obtained from the training set. Feature vectors that are created using Alphafold proteins and PDB proteins can be found under related folders.
-
-- **training_uptodate_full.txt** : Full training dataset obtained from UniProt, PMD and ClinVar.
-- **training_uptodate_full_2014selected.txt** : 2014 subset of the training set.
-- **swiss_test.txt** : Benchmark set obtained from SwissVar database.
-- **varibench_test.txt** : Benchmark set obtained from VariBench database.
-- **psnp_test.txt** : Benchmark set obtained from PredictSNP database.
-- **mutationtaster_test** : Benchmark set obtained from MutationTaster data.
-- **training_uptodate_full_2014selected_wo_swiss** : 2014 subset of the training set, test datapoints from SwissVar removed.
-- **training_uptodate_full_2014selected_wo_varibench** : 2014 subset of the training set, test datapoints from Varibench removed.
-- **training_uptodate_full_2014selected_wo_psnp** : 2014 subset of the training set, test datapoints from PredictSNP removed.
-- **training_uptodate_full_2014selected_wo_mt** : 2014 subset of the training set, test datapoints from MutationTaster removed.
-- **featurevector_brca1_xx** : Feature vector created for benchmarking BRCA1 variations. AF and PDB versions, as well as imputed and not imputed versions are found in the relevant folders.
-- **featurevector_p53_xx** : Feature vector created for benchmarking P53 variations. AF and PDB versions, as well as imputed and not imputed versions are found in the relevant folders.
-- **featurevector_calm1_xx** : Feature vector created for benchmarking CALM1 variations. AF and PDB versions, as well as imputed and not imputed versions are found in the relevant folders.
-- **training_uptodate_full_pdb_imputed_wo3genes** : Imputed PDB training feature vector without datapoints from BRCA1, P53 and CALM1.File is zipped due to size limitations.
-- **training_uptodate_full_pdb_raw_wo3genes** : Non-imputed PDB training feature vector without datapoints from BRCA1, P53 and CALM1.
-- **training_uptodate_full_alphafold_imputed_wo3genes** : Imputed AlphaFold training feature vector without datapoints from BRCA1, P53 and CALM1. File is zipped due to size limitations.
-- **training_uptodate_full_alphafold_raw_wo3genes** : Non-imputed AlphaFold training feature vector without datapoints from BRCA1, P53 and CALM1.
-
 ## Usage
 
 Please unzip required files prior to running the code.
