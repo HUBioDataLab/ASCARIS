@@ -1,3 +1,4 @@
+### Datasets in the 'Paper Analyses' folder
 The files in these folders concerns the various analyses conducted throughout the ASCARIS
 paper. They are used to create machine learning models. Each file has a _raw and _imputed 
 version. In the latter one the empty values are imputed with the mean values of each 
@@ -7,7 +8,7 @@ structure sources are given at the end of each file name, hence is not written s
 here.
 
 
-- **training_uptodate_full** : Full training dataset obtained from UniProt, PMD and ClinVar.
+- **training_uptodate_full.txt** : Full training dataset obtained from UniProt, PMD and ClinVar.
 - **training_uptodate_full_2014selected** : 2014 subset of the training set.
 - **training_uptodate_full_2014selected_wo_mt** : 2014 subset of the training set, test 
 datapoints from MutationTaster removed.
