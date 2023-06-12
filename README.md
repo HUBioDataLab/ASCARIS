@@ -11,7 +11,7 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 
 <p align="center">
  
- <img width="960" alt="ASCARIS_Overall_Workflow" src="https://github.com/HUBioDataLab/ASCARIS/assets/26777185/058ce800-d3a5-48a4-a7ac-3ef7768bdfc3">
+<img width="919" alt="ASCARIS_Overall_Workflow" src="https://github.com/HUBioDataLab/ASCARIS/assets/26777185/da563283-d696-45a6-adf0-9c97f8d04018">
 
 
 <img width="1087" alt="ASCARIS_Overall_Workflow" src="https://user-images.githubusercontent.com/13165170/198850423-5d50bde2-f9dd-4600-baae-65830afdb57f.png">
