@@ -4,7 +4,7 @@ import argparse
 
 parser = argparse.ArgumentParser(description='ASCARIS')
 
-parser.add_argument('-o', '--input_option',
+parser.add_argument('-s', '--source_option',
                     help='Selection of input structure data.\n 1: PDB Structures (default), 2: AlphaFold Structures',
                     default=1)
 parser.add_argument('-i', '--input_datapoint',
