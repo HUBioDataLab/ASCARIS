@@ -57,6 +57,11 @@ python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
 
 This section intends to guide the users on how to run ASCARIS. 
 
+Please download all the requirements by running the following code:
+```
+pip install -r requirements.txt
+
+```
 Please unzip required files prior to running the code as described in the **Input Files** section.
 ASCARIS can be run in three ways.
 
