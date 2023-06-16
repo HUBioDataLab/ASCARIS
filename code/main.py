@@ -16,7 +16,7 @@ parser.add_argument('-impute', '--imputation_state', default='True',
 args = parser.parse_args()
 
 input_set = args.input_datapoint
-mode = args.input_option
+mode = args.source_option
 impute = args.imputation_state
 
 def run_featureVector(input_set, mode, impute):
