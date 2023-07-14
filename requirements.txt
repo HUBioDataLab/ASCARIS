@@ -1,5 +1,3 @@
-streamlit==1.24.0
-freesasa==2.0.3.post7
 beautifulsoup4==4.5.3
 urllib3==1.26.6
 Bio==1.5.9
