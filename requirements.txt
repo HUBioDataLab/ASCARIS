@@ -1,9 +1,1 @@
-beautifulsoup4==4.5.3
-urllib3==1.26.6
-Bio==1.5.9
-biopandas==0.2.5
-biopython==1.80
-Requests==2.31.0
-ssbio==0.9.9.8.post1
-ssbio_edbr==0.9.9.7
-unipressed==1.2.0
+
