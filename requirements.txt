@@ -1,3 +1,4 @@
+streamlit==0.75.0
 beautifulsoup4==4.5.3
 urllib3==1.26.6
 Bio==1.5.9
