@@ -62,7 +62,7 @@ def pdb(input_set, mode, impute):
     path_to_input_files, path_to_output_files, path_to_domains, fisher_path, path_to_interfaces, buffer =  manage_files(mode)
     out_path = path_to_output_files / 'log.txt'
     sys.stdout = open(out_path, 'w')
-    print('Creating directories...')
+    st.write('Creating directories...')
 
     annotation_list = ['disulfide', 'intMet', 'intramembrane', 'naturalVariant', 'dnaBinding', 'activeSite',
                        'nucleotideBinding', 'lipidation', 'site', 'transmembrane', 'crosslink', 'mutagenesis', 'strand',
@@ -70,16 +70,16 @@ def pdb(input_set, mode, impute):
                        'signalPeptide', 'modifiedResidue', 'zincFinger', 'motif', 'coiledCoil', 'peptide',
                        'transitPeptide', 'glycosylation', 'propeptide']
 
-    print('Feature vector generation started...\n')
+    st.write('Feature vector generation started...\n')
     try:
         if len(data) == 0:
-            print('Feature vectore generation terminated.')
+            st.write('Feature vectore generation terminated.')
         else:
             """
             STEP 2
             Add physicochemical properties.
             """
-            print('Adding physicochemical properties...\n')
+            st.write('Adding physicochemical properties...\n')
 
             data = add_physicochemical(data)
 
@@ -87,7 +87,7 @@ def pdb(input_set, mode, impute):
             STEP 3
             Add domain-related information.
             """
-            print('Adding domains\n')
+            st.write('Adding domains\n')
 
             data = add_domains(data, path_to_domains)
 
@@ -103,7 +103,7 @@ def pdb(input_set, mode, impute):
             Retrieve canonical and isoform UniProt sequences.
             Add to the data frame.
             """
-            print('Retrieving UniProt sequences...\n')
+            st.write('Retrieving UniProt sequences...\n')
 
             canonical_fasta = pd.DataFrame(columns=['uniprotID', 'uniprotSequence'])
             up_list = list(set(data['uniprotID'].to_list()))
@@ -128,7 +128,7 @@ def pdb(input_set, mode, impute):
             for i in isoform_fasta.index:
                 isoform_fasta.at[i, 'whichIsoform'] = isoform_fasta.at[i, 'uniprotID'][7:10].strip()
                 isoform_fasta.at[i, 'uniprotID'] = isoform_fasta.at[i, 'uniprotID'][0:6]
-            print('Sequence files created...\n')
+            st.write('Sequence files created...\n')
 
             data = data.merge(canonical_fasta, on='uniprotID', how='left')
             data = data.astype(str)
@@ -171,7 +171,7 @@ def pdb(input_set, mode, impute):
             uniprot_matched = data[(data.uniprotSequence != 'nan') & (data.wt_sequence_match != 'nan')]
             data = None
 
-            print('You have %d data points that failed to match a UniProt Sequence\nProceeding with %d remaining...\n'
+            st.write('You have %d data points that failed to match a UniProt Sequence\nProceeding with %d remaining...\n'
                   % (len(not_match_in_uniprot.drop_duplicates(['datapoint'])),
                      len(uniprot_matched.drop_duplicates(['datapoint']))))
 
@@ -184,7 +184,7 @@ def pdb(input_set, mode, impute):
             pdb_fasta = pd.DataFrame(columns=['pdbID', 'chain', 'pdbSequence'])
             pdb_info = pd.DataFrame(columns=['uniprotID', 'pdbID', 'chain', 'resolution'])
 
-            print('Retrieving PDB structures...\n')
+            st.write('Retrieving PDB structures...\n')
             pdbs = []
             protein = uniprot_matched.uniprotID.to_list()
             protein = list(set(protein))
@@ -194,18 +194,18 @@ def pdb(input_set, mode, impute):
                 pdbs.append(get_pdb_ids(prot))
 
             pdbs = [item for sublist in pdbs for item in sublist]
-            print('Processing PDB structures...\n')
+            st.write('Processing PDB structures...\n')
             if pdbs == []:
-                print('No PDB structure found for the query. ')
+                st.write('No PDB structure found for the query. ')
             """
             try:
                 pdbs = [j.strip('[').strip(']').strip().strip('\'').strip('\"') for j in
                         ((',').join([str(item) for item in pdbs])).split(',')]
             except IndexError:
                 pdbs = []
-                print('No PDB structure found for the query. ')
+                st.write('No PDB structure found for the query. ')
             """
-            print('Starting PDB structures download...\n')
+            st.write('Starting PDB structures download...\n')
             pdbs = list(filter(None, pdbs))
             pdbs = (set(pdbs))
             pdbs = [i.lower() for i in pdbs]
@@ -227,7 +227,7 @@ def pdb(input_set, mode, impute):
                     if search.lower() not in existing_pdb:
                         file = pdbl.retrieve_pdb_file(search, pdir=Path(path_to_output_files / 'pdb_structures'), file_format="pdb")
                     else:
-                        print('PDB structure file exists..')
+                        st.write('PDB structure file exists..')
                         for filename in list(Path(path_to_output_files / 'pdb_structures').glob("*")):
                             filename_replace_ext = filename.with_suffix(".pdb")
                             filename.rename(filename_replace_ext)
@@ -257,8 +257,8 @@ def pdb(input_set, mode, impute):
                     pdb_info.at[index, 'chain'] = 'nan'
                     pdb_info.at[index, 'resolution'] = 'nan'
                 cnt +=1
-            print()
-            print('PDB file processing finished..')
+            st.write()
+            st.write('PDB file processing finished..')
             for filename in list(Path(path_to_output_files / 'pdb_structures').glob("*")):
                 try:
                     filename_replace_ext = filename.with_suffix(".pdb")
@@ -290,7 +290,7 @@ def pdb(input_set, mode, impute):
             no_pdb = no_pdb[~no_pdb.datapoint.isin(with_pdb.datapoint.to_list())]
             no_pdb.drop(columns=['chain', 'pdbID', 'pdbSequence', 'resolution'], inplace=True)
 
-            print(
+            st.write(
                 'PDB Information successfully added...\nPDB structures are found for %d of %d.\n%d of %d failed to match with PDB structure.\n'
                 % (len(with_pdb.drop_duplicates(['datapoint'])), len(uniprot_matched.drop_duplicates(['datapoint'])),
                    len(no_pdb.drop_duplicates(['datapoint'])), len(uniprot_matched.drop_duplicates(['datapoint']))))
@@ -399,7 +399,7 @@ def pdb(input_set, mode, impute):
             with_pdb_size = len(with_pdb.drop_duplicates(['datapoint']))
             with_pdb = None
 
-            print('Aligning sequences...\n')
+            st.write('Aligning sequences...\n')
             aligned_m = final_stage(dfM, annotation_list, Path(path_to_output_files / 'alignment_files'))
             aligned_nm = final_stage(dfNM, annotation_list, Path(path_to_output_files / 'alignment_files'))
 
@@ -446,18 +446,18 @@ def pdb(input_set, mode, impute):
             no_pdb = no_pdb.copy()
 
 
-            print('PDB matching is completed...\n')
-            print('SUMMARY')
-            print('-------')
-            print('%d data points that failed to match a UniProt Sequence are discarded.' % len(
+            st.write('PDB matching is completed...\n')
+            st.write('SUMMARY')
+            st.write('-------')
+            st.write('%d data points that failed to match a UniProt Sequence are discarded.' % len(
                 not_match_in_uniprot.drop_duplicates(['datapoint'])))
-            print('Of the remaining %d:' % uniprot_matched_size)
-            print('--%d of %d successfully aligned with PDB structures.' % (
+            st.write('Of the remaining %d:' % uniprot_matched_size)
+            st.write('--%d of %d successfully aligned with PDB structures.' % (
                 len(pdb_aligned.drop_duplicates(['datapoint'])), with_pdb_size))
-            print('--%d of %d not found on the covered area by the structure.' % (
+            st.write('--%d of %d not found on the covered area by the structure.' % (
                 len(yes_pdb_no_match.drop_duplicates(['datapoint'])), with_pdb_size))
-            print('--PDB structures not found for %d datapoints.' % len(no_pdb.drop_duplicates(['datapoint'])))
-            print('--%d will be searched in Swiss-Model database.\n' % (
+            st.write('--PDB structures not found for %d datapoints.' % len(no_pdb.drop_duplicates(['datapoint'])))
+            st.write('--%d will be searched in Swiss-Model database.\n' % (
                     len(yes_pdb_no_match.drop_duplicates(['datapoint'])) + len(no_pdb.drop_duplicates(['datapoint']))))
 
 
@@ -467,8 +467,8 @@ def pdb(input_set, mode, impute):
             aligned_m = None
             after_up_pdb_alignment = None
 
-            print('Proceeding to  SwissModel search...')
-            print('------------------------------------\n')
+            st.write('Proceeding to  SwissModel search...')
+            st.write('------------------------------------\n')
 
             # At this point we have 4 dataframes
             # 1. after_up_pdb_alignment --- This is after PDB sequence alignment. There may be mutations that wasnt found matching to after the alignment. Will be searched in other databases as well.
@@ -511,7 +511,7 @@ def pdb(input_set, mode, impute):
             to_swiss = to_swiss.replace({'NaN': 'nan'})
             # Create model summary dataframe.
             if len(to_swiss) != 0:
-                print('Generating SwissModel file...\n')
+                st.write('Generating SwissModel file...\n')
 
                 swiss_model = pd.read_csv(Path(path_to_input_files / 'swissmodel_structures.txt'), sep='\t',
                                           dtype=str, header=None, skiprows=1,
@@ -538,7 +538,7 @@ def pdb(input_set, mode, impute):
                     swiss_model.at[ind, 'whichIsoform'] = 'nan'
     #        swiss_model.drop(['input'], axis=1, inplace=True)
             swiss_model = swiss_model[swiss_model.provider == 'SWISSMODEL']
-            print('Index File Processed...\n')
+            st.write('Index File Processed...\n')
 
 
             # Get relevant columns
@@ -634,7 +634,7 @@ def pdb(input_set, mode, impute):
             Associated model IDs are added. 
             Download model files.
             """
-            print('Beginning SwissModel files download...')
+            st.write('Beginning SwissModel files download...')
             existing_swiss = list(Path(path_to_output_files / 'swissmodel_structures').glob("*"))
             existing_swiss = [str(i) for i in existing_swiss]
             existing_swiss = ['.'.join(i.split('/')[-1].split('.')[:-1]) for i in existing_swiss]
@@ -650,11 +650,11 @@ def pdb(input_set, mode, impute):
                         'https:')
                     req = requests.get(url)
                     name = Path(path_to_output_files / 'swissmodel_structures' / f'{protein}_{template}_{qmean_norm}.txt')
-                    print('Downloading for Protein:', protein + ' Model: ' + template)
+                    st.write('Downloading for Protein:', protein + ' Model: ' + template)
                     with open(name, 'wb') as f:
                         f.write(req.content)
                 else:
-                    print('Model exists.')
+                    st.write('Model exists.')
                     name = Path(path_to_output_files / 'swissmodel_structures' / f'{protein}_{template}_{qmean_norm}.txt')
                 with open(name, encoding="utf8") as f:
                     fasta = ''
@@ -728,7 +728,7 @@ def pdb(input_set, mode, impute):
             swiss_models_with_data.pos = swiss_models_with_data.pos.astype('int')
             len(swiss_models_with_data.drop_duplicates(['datapoint'])) + len(broken_swiss.drop_duplicates(['datapoint'])) + len(
                 no_swiss_models_2.drop_duplicates(['datapoint'])) == len(to_swiss.drop_duplicates(['datapoint']))
-            # This printed data here includes all possible models with different qualities,
+            # This st.writeed data here includes all possible models with different qualities,
             # because we may get a hit in either of them.
             swiss_models_with_data.rename({'fasta': 'pdbSequence'}, axis=1, inplace=True)  # for convenience.
 
@@ -749,7 +749,7 @@ def pdb(input_set, mode, impute):
             existing_swiss = None
             swissmodels_fasta = None
 
-            print('Aligning sequences...\n')
+            st.write('Aligning sequences...\n')
 
             swiss_models_with_data['uniprotSequence'] = swiss_models_with_data['uniprotSequence'].str.replace('U', 'C')
             swiss_models_with_data['pdbSequence'] = swiss_models_with_data['pdbSequence'].str.replace('U', 'C')
@@ -797,20 +797,20 @@ def pdb(input_set, mode, impute):
             len(swiss_match.drop_duplicates(['datapoint'])) + len(aligned.drop_duplicates(['datapoint'])) + len(to_modbase.drop_duplicates(['datapoint'])) + len(not_match_in_uniprot.drop_duplicates(['datapoint'])) ,len(data)
             len(aligned.drop_duplicates(['datapoint'])) + len(not_match_in_uniprot.drop_duplicates(['datapoint'])) +len(to_swiss.drop_duplicates(['datapoint']))== len(data)
             """
-            print('SwissModel matching is completed...\n')
-            print('SUMMARY')
-            print('-------')
-            print('%d data points that failed to match a UniProt Sequence are discarded.' % len(
+            st.write('SwissModel matching is completed...\n')
+            st.write('SUMMARY')
+            st.write('-------')
+            st.write('%d data points that failed to match a UniProt Sequence are discarded.' % len(
                 not_match_in_uniprot.drop_duplicates(['datapoint'])))
-            print('Of the remaining %d:' % uniprot_matched_size)
-            print('--%d of %d successfully aligned with PDB structures.' % (
+            st.write('Of the remaining %d:' % uniprot_matched_size)
+            st.write('--%d of %d successfully aligned with PDB structures.' % (
                 len(pdb_aligned.drop_duplicates(['datapoint'])), with_pdb_size))
-            print('--%d of %d successfully aligned with SwissModels structures.' % (
+            st.write('--%d of %d successfully aligned with SwissModels structures.' % (
                 len(swiss_match.drop_duplicates(['datapoint'])), to_swiss_size))
-            print('--%d will be searched in ModBase database.\n' % len(to_modbase.drop_duplicates(['datapoint'])))
+            st.write('--%d will be searched in ModBase database.\n' % len(to_modbase.drop_duplicates(['datapoint'])))
 
-            print('Proceeding to ModBase search...')
-            print('------------------------------------\n')
+            st.write('Proceeding to ModBase search...')
+            st.write('------------------------------------\n')
             no_swiss_models_2 = None
             broken_swiss = None
             swiss_model_aligned = None
@@ -841,19 +841,19 @@ def pdb(input_set, mode, impute):
                 modbase_reduced = pd.DataFrame()
                 modbase_fasta = pd.DataFrame()
 
-                print('Retrieving ModBase models...\n')
+                st.write('Retrieving ModBase models...\n')
                 # Get model files associated with each UniProtID
                 for protein in list(set(to_modbase.uniprotID.to_list())):
                     if protein not in existing_modbase_models:
-                        print('Downloading Modbase models for ', protein)
+                        st.write('Downloading Modbase models for ', protein)
                         url = 'https://salilab.org/modbase/retrieve/modbase/?databaseID=' + protein
-                        print(url)
+                        st.write(url)
                         req = requests.get(url)
                         name = path_to_output_files / 'modbase_structures' /  f'{protein}.txt'
                         with open(name, 'wb') as f:
                             f.write(req.content)
                     else:
-                        print('Model exists for', protein)
+                        st.write('Model exists for', protein)
                         name = Path(path_to_output_files / 'modbase_structures' / f'{protein}.txt')
                     with open(name, encoding="utf8") as f:
                         a = open(name, 'r').read()
@@ -912,10 +912,10 @@ def pdb(input_set, mode, impute):
                                     modbase_reduced = modbase_reduced.append(k, ignore_index=True)
                                 except:
                                     NameError
-                                    print('This file doesnt have Quality Score. Replacer: -999', model_id)
+                                    st.write('This file doesnt have Quality Score. Replacer: -999', model_id)
                                     quality_score = -999
 
-                print()
+                st.write()
                 if len(modbase_fasta) != 0:
                     modbase_fasta.columns = ['uniprotID', 'template', 'score', 'chain', 'fasta']
                 else:
@@ -925,7 +925,7 @@ def pdb(input_set, mode, impute):
                 modbase_fasta = modbase_fasta.replace({'NaN': 'nan'})
                 modbase_fasta = modbase_fasta[modbase_fasta.fasta != 'nan']
 
-                print('Modbase model frame constructed.\n')
+                st.write('Modbase model frame constructed.\n')
                 if len(modbase_reduced) != 0:
                     modbase_reduced.columns = ['UniprotID', 'TargetBeg', 'TargetEnd', 'PDBCode', 'PDBChain', 'PDBBegin',
                                                'PDBEnd',
@@ -1030,7 +1030,7 @@ def pdb(input_set, mode, impute):
                 to_modbase_size = len(to_modbase.drop_duplicates(['datapoint']))
                 modbase_fasta = None
                 to_modbase = None
-                print('Aligning sequences...\n')
+                st.write('Aligning sequences...\n')
                 modbase_aligned = alignment(align, annotation_list, path_to_output_files / 'alignment_files')
                 modbase_aligned = modbase_aligned.astype(str)
                 modbase_aligned = modbase_aligned.replace({'NaN': 'nan'})
@@ -1225,23 +1225,23 @@ def pdb(input_set, mode, impute):
                 rest = rest.astype('str')
                 to_modbase_size = 0
 
-            print('Modbase matching is completed...\n')
-            print('SUMMARY')
-            print('-------')
-            print('%d data points that failed to match a UniProt Sequence are discarded.' % len(
+            st.write('Modbase matching is completed...\n')
+            st.write('SUMMARY')
+            st.write('-------')
+            st.write('%d data points that failed to match a UniProt Sequence are discarded.' % len(
                 not_match_in_uniprot.drop_duplicates(['datapoint'])))
-            print('Of the remaining %d:' % uniprot_matched_size)
-            print('--%d of %d successfully aligned with PDB structures.' % (
+            st.write('Of the remaining %d:' % uniprot_matched_size)
+            st.write('--%d of %d successfully aligned with PDB structures.' % (
                 len(pdb_aligned.drop_duplicates(['datapoint'])), with_pdb_size))
-            print('--%d of %d successfully aligned with SwissModels structures.' % (
+            st.write('--%d of %d successfully aligned with SwissModels structures.' % (
                 len(swiss_match.drop_duplicates(['datapoint'])), to_swiss_size))
-            print('--%d of %d successfully aligned with Modbase structures.\n' % (
+            st.write('--%d of %d successfully aligned with Modbase structures.\n' % (
                 len(modbase_match.drop_duplicates(['datapoint'])), to_modbase_size))
-            print('--Remaining %d not found to match any models.' % len(rest.drop_duplicates(['datapoint'])))
-            print('--A total of %d datapoints will not be evaluated.\n' % (
+            st.write('--Remaining %d not found to match any models.' % len(rest.drop_duplicates(['datapoint'])))
+            st.write('--A total of %d datapoints will not be evaluated.\n' % (
                     len(rest.drop_duplicates(['datapoint'])) + len(not_match_in_uniprot.drop_duplicates(['datapoint']))))
 
-            print('FOR CHECKING : ',
+            st.write('FOR CHECKING : ',
                   len(rest.drop_duplicates(['datapoint'])) + len(not_match_in_uniprot.drop_duplicates(['datapoint'])) + len(
                       pdb_aligned.drop_duplicates(['datapoint'])) + len(swiss_match.drop_duplicates(['datapoint'])) + len(
                       modbase_match.drop_duplicates(['datapoint'])) == data_size)
@@ -1297,15 +1297,15 @@ def pdb(input_set, mode, impute):
             modbase = None
             rest = None
 
-            print('Generating FreeSASA files...')
-            print('------------------------------------\n')
+            st.write('Generating FreeSASA files...')
+            st.write('------------------------------------\n')
             # Folder to calculated RSA values.
 
             existing_free_sasa = list(Path(path_to_output_files / 'freesasa_files').glob("*"))
             existing_free_sasa = [str(i) for i in existing_free_sasa]
             existing_free_sasa = [i.split('/')[-1].split('.')[0] for i in existing_free_sasa]
 
-            print('Calculation RSA for PDB Structure Files...\n')
+            st.write('Calculation RSA for PDB Structure Files...\n')
 
             pdb_only = data[data.source == 'PDB']
             for pdbID in pdb_only.pdbID.to_list():
@@ -1315,7 +1315,7 @@ def pdb(input_set, mode, impute):
                                   outdir=None, force_rerun=False, file_type='pdb'))
 
 
-            print('Calculation RSA for SwissModel Files...\n')
+            st.write('Calculation RSA for SwissModel Files...\n')
             swiss_only = data[data.source == 'SWISSMODEL']
             swiss_dp = []
             for i in swiss_only.index:
@@ -1327,7 +1327,7 @@ def pdb(input_set, mode, impute):
                                   Path(path_to_output_files / 'freesasa_files' / f'{pdbID}.txt'), include_hetatms=True,
                                   outdir=None, force_rerun=False, file_type='pdb'))
 
-            print('Calculation RSA for Modbase Model Files...\n')
+            st.write('Calculation RSA for Modbase Model Files...\n')
             modbase_only = data[data.source == 'MODBASE']
             for pdbID in modbase_only.pdbID.to_list():
                 if pdbID not in existing_free_sasa:
@@ -1342,7 +1342,7 @@ def pdb(input_set, mode, impute):
             folder_path = path_to_output_files / 'freesasa_files'
 
             aligner = Align.PairwiseAligner()
-            print('Proceeding to 3D distance calculation...\n')
+            st.write('Proceeding to 3D distance calculation...\n')
 
             data.domainEndonPDB = data.domainEndonPDB.astype(str)
             data.domainStartonPDB = data.domainStartonPDB.astype(str)
@@ -1435,11 +1435,11 @@ def pdb(input_set, mode, impute):
             # Now unify all 3 separate data. We have with_pdb. The ones that have pdb structyres, swiss, modbase, the ones didnt match with ant and the ones didnt have wt seq match.
 
             # Get interface positions from ECLAIR. Download HQ human
-            print()
-            print('Assigning surface regions...')
-            print('------------------------------------\n')
+            st.write()
+            st.write('Assigning surface regions...')
+            st.write('------------------------------------\n')
 
-            print('Extracting interface residues...\n')
+            st.write('Extracting interface residues...\n')
             data_interface = pd.read_csv(path_to_interfaces, sep='\t')
 
             positions = get_interface_positions(data_interface, 'P1', 'P2')
@@ -1499,7 +1499,7 @@ def pdb(input_set, mode, impute):
             data.positions = data.positions.astype('str')
             for i in data.index:
                 if (str(data.at[i, 'pos']) in data.at[i, 'positions']) and data.at[i, 'trsh4'] == 'surface':
-                    print((str(data.at[i, 'pos']) in data.at[i, 'positions']))
+                    st.write((str(data.at[i, 'pos']) in data.at[i, 'positions']))
                     data.at[i, 'threeState_trsh4_HQ'] = 'interface'
                 elif (str(data.at[i, 'pos']) not in data.at[i, 'positions']) and data.at[i, 'trsh4'] == 'surface':
                     data.at[i, 'threeState_trsh4_HQ'] = 'surface'
@@ -1530,7 +1530,7 @@ def pdb(input_set, mode, impute):
             # Change the numbering for binary annotations and create 3 classes:
             # nan--> 0, 0 -->1 and 1 -->2
 
-            print('Final adjustments are being done...\n')
+            st.write('Final adjustments are being done...\n')
             binaryCols = ['disulfideBinary', 'intMetBinary', 'intramembraneBinary', 'naturalVariantBinary', 'dnaBindingBinary',
                           'activeSiteBinary', 'nucleotideBindingBinary', 'lipidationBinary', 'siteBinary',
                           'transmembraneBinary', 'crosslinkBinary', 'mutagenesisBinary',
@@ -1661,4 +1661,4 @@ def pdb(input_set, mode, impute):
         return ready
     except:
         TypeError
-        print('Wrong input format. Check your input or file path.')
+        st.write('Wrong input format. Check your input or file path.')
