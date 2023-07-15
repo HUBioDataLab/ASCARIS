@@ -1648,13 +1648,15 @@ def pdb(input_set, mode, impute):
             ready = ready.replace({'nan': np.NaN})
             ready.to_csv(path_to_output_files / 'featurevector_pdb.txt', sep='\t', index=False)
             if len(ready) == 0:
-                print('No feature vector could be produced for input data. Please check the presence of a structure for the input proteins.')
+                st.write('No feature vector could be produced for input data. Please check the presence of a structure for the input proteins.')
+            st.write(ready)
+            st.write('Feature vector successfully created...')
             return ready
-            print('Feature vector successfully created...')
+
         end = timer()
         hours, rem = divmod(end - start, 3600)
         minutes, seconds = divmod(rem, 60)
-        print("Time passed: {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
+        st.write("Time passed: {:0>2}:{:0>2}:{:05.2f}".format(int(hours), int(minutes), seconds))
         sys.stdout.close()
         return ready
     except:
