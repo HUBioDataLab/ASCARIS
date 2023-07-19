@@ -21,7 +21,7 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 - [Requests 2.22.0](https://pypi.org/project/requests/)
 - [Biopython 1.78](https://biopython.org/docs/1.78/api/Bio.html)
 
-&nbsp;
+<p>&nbsp;</p>
 
 ## Descriptions of folders and files in the ASCARIS repository 
 
