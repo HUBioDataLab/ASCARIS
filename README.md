@@ -8,7 +8,8 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 <p align="center"> 
 <img width="925" alt="ASCARIS_Overall_Workflow" src="https://github.com/HUBioDataLab/ASCARIS/assets/26777185/c0986b96-7a89-4cbc-b790-50f3fc03d287">
 </p>
-  
+&nbsp;
+
 ## Development and Dependencies
 
 - [Python 3.7.3](https://www.python.org/downloads/release/python-373/)
