@@ -10,7 +10,6 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 </p>
 
 <br></br>
-
 ## Development and Dependencies
 
 - [Python 3.7.3](https://www.python.org/downloads/release/python-373/)
