@@ -1,12 +1,10 @@
 # ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations
 
-## Abstract 
+## Introduction 
 
-Genomic variations may cause deleterious effects on protein functionality and perturb biological processes. Elucidating the effects of variations is critical for developing novel treatment strategies for diseases of genetic origin. 
+ASCARIS (Annotation and StruCture-bAsed RepresentatIon of Single amino acid variations) is a tool for the featurization (i.e., quantitative representation) of SAVs, which could be used for a variety of purposes, such as predicting their functional effects or building multi-omics-based integrative models. ASCARIS utilizes the correspondence between the location of the SAV on the sequence and 30 different types of positional feature annotations (e.g., active/lipidation/glycosylation sites; calcium/metal/DNA binding, inter/transmembrane regions, etc.) from UniProt, along with structural features and the change in physicochemical properties, using models from PDB and AlphaFold-DB. It constructs a 74-dimensional feature set (including meta-data) to represent a given SAV. 
 
-ASCARIS (Annotation and StruCture-bAsed RepresentatIon of Single amino acid variations) is a tool for the featurization (i.e., quantitative representation) of SAVs, which could be used for a variety of purposes, such as predicting their functional effects or building multi-omics-based integrative models. ASCARIS utilizes the correspondence between the location of the SAV on the sequence and 30 different types of positional feature annotations (e.g., active/lipidation/glycosylation sites; calcium/metal/DNA binding, inter/transmembrane regions, etc.) from UniProt, along with structural features and the change in physicochemical properties, using models from PDB and AlphaFold-DB. It constructs a 74-dimensional feature set to represent a given SAV. 
-
-For more information on the construction of the feature vector, the statistical analysis of different features, and machine learning models trained on the feature vectors that predicts the effect of SAVs, please refer to the main article:
+Please refer to our pre-print article for more information on the construction of feature vectors, statistical analysis of features, and machine learning models trained on ASCARIS representations to predict the effect of SAVs:
 Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *bioRxiv*, 514934v1. [Link](https://www.biorxiv.org/content/10.1101/2022.11.03.514934v1)
 
 <p align="center">
