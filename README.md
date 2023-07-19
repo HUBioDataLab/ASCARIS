@@ -55,6 +55,7 @@ python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
 ### Output Files 
 
 Results (output) of ASCARIS runs can be found in the **out_files** folder.
+
 &nbsp;
   
 ## ASCARIS Usage
