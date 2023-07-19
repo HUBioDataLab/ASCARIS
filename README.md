@@ -21,7 +21,7 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 - [Requests 2.22.0](https://pypi.org/project/requests/)
 - [Biopython 1.78](https://biopython.org/docs/1.78/api/Bio.html)
 
-<p>&nbsp;</p>
+&nbsp;
 
 ## Descriptions of folders and files in the ASCARIS repository 
 
@@ -183,6 +183,7 @@ In ASCARIS representations, dimensions 1-5 correspond to datapoint identifier, 6
 ## Please Refer to Our Pre-print for More Information:
 
 Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *bioRxiv*, 514934v1. [Link](https://www.biorxiv.org/content/10.1101/2022.11.03.514934v1)
+
 &nbsp;
 
 ## License
