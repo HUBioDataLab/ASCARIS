@@ -15,6 +15,7 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 
 - [Python 3.9](https://www.python.org/downloads/release/python-3917/)
 - Use pip3 install -r requirements.txt to install dependencies.
+- Install [freesasa](https://freesasa.github.io/) by following the instructions on freesasa help page.  
 
 
 &nbsp;
