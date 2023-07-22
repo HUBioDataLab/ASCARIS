@@ -14,7 +14,7 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 ## Development and Dependencies
 
 - [Python 3.9](https://www.python.org/downloads/release/python-3917/)
-- Use pip install -r requirements.txt to install dependencies.
+- Use pip3 install -r requirements.txt to install dependencies.
 
 
 &nbsp;
