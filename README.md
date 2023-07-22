@@ -13,13 +13,9 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 
 ## Development and Dependencies
 
-- [Python 3.7.3](https://www.python.org/downloads/release/python-373/)
-- [Pandas 1.1.4](https://pandas.pydata.org/pandas-docs/version/1.1.4/getting_started/install.html)
-- [Numpy 1.19.5](https://numpy.org/devdocs/release/1.19.5-notes.html)
-- [Ssbio 0.9.9.8.post1](https://pypi.org/project/ssbio/)
-- [Freesasa 2.0.3.post7](https://pypi.org/project/freesasa/2.0.3.post7/)
-- [Requests 2.22.0](https://pypi.org/project/requests/)
-- [Biopython 1.78](https://biopython.org/docs/1.78/api/Bio.html)
+- [Python 3.9](https://www.python.org/downloads/release/python-3917/)
+- Use pip install -r requirements.txt to install dependencies.
+
 
 &nbsp;
 
