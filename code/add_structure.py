@@ -160,10 +160,25 @@ def get_pdb_ids(protein_id):
             pdb_list = list(request.each_result())
             return [i['to'] for i in pdb_list]
         except:
-            print("UniProt not responding. Try again later.")
+            get_pdb_ids_2(protein_id)
     except requests.exceptions.HTTPError:
         get_pdb_ids_2(protein_id)
     except KeyError:
         get_pdb_ids_2(protein_id)
 
+"""
+def get_pdb_ids(protein_id):
+    try:
+        request = IdMappingClient.submit(
+            source="UniProtKB_AC-ID", dest="PDB", ids={protein_id})
+        try:
+            pdb_list = list(request.each_result())
+            return [i['to'] for i in pdb_list]
+        except:
+            print("UniProt not responding. Try again later.")
+    except requests.exceptions.HTTPError:
+        get_pdb_ids_2(protein_id)
+    except KeyError:
+        get_pdb_ids_2(protein_id)
+"""
 
