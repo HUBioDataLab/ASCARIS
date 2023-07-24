@@ -72,11 +72,11 @@ ASCARIS can be run in three ways.
 1. Run ASCARIS for only one SAV datapoint:
 
 ```
-python3 code/main.py -s 1 -i P13637-T-613-M -impute True
+python3 code/main.py -s 1 -i Q00889-H-85-D -impute True
 ```
 2. Run ASCARIS for more than one datapoints:
 ```
-python3 code/main.py -s 2 -i 'P13637-T-613-M, Q9Y4W6-N-432-T, Q9Y4W6-N-432-T' impute False
+python3 code/main.py -s 2 -i 'Q00889-H-85-D,Q16363-Y-498-H' impute False
 ```
 
 3. Run ASCARIS on a tab-separated file containing SAV data. Please see sample_input.txt for the format.
@@ -100,13 +100,6 @@ Example The input file format is shown below (using the **sample_input.txt**). C
 
 
 ```
-P12694	C	264	W
-P13637	T	613	M
-P05067	I	716	V
-P41180	E	604	K
-P08123	G	646	C
-P06731	I	80	V
-P29474	D	298	E
 Q16363	Y	498	H
 P23560	V	66	M
 Q00889	H	85	D
