@@ -92,7 +92,6 @@ def mutation_position_on_pdb(alignment_list, pos):
         else:
             pdb_alignStatus = 'not_aligned'
             mutationPositionOnPDB = 'nan'
-    print(pdb_alignStatus, mutationPositionOnPDB, startGap, alignment_list[which_alignment_to_go - 1])
     return (pdb_alignStatus, mutationPositionOnPDB, startGap, alignment_list[which_alignment_to_go - 1])
 
 
