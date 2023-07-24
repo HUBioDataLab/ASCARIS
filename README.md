@@ -103,7 +103,8 @@ Example The input file format is shown below (using the **sample_input.txt**). C
 Q16363	Y	498	H
 P23560	V	66	M
 Q00889	H	85	D
-P04217-H-52-R
+P04217	H	52	R
+P16219	R	46	W
 ```
 
 Upon running ASCARIS, the output files will be saved in **out_files** folder. Depending on the selected arguments, two type of sub-folders (PDB and AlphaFold) will be created. 
