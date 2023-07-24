@@ -1,4 +1,6 @@
 Creating directories...
+Feature vector generation started...
+
 Adding physicochemical properties...
 
 Adding domains
@@ -6,52 +8,147 @@ Adding domains
 Retrieving UniProt sequences...
 
 Fetching UniProt Sequences for ID:  P23560
-Fetching UniProt Sequences for ID:  P16219
+Fetching UniProt Sequences for ID:  P04217
 Fetching UniProt Sequences for ID:  Q00889
 Fetching UniProt Sequences for ID:  Q16363
-Fetching UniProt Sequences for ID:  P04217
+Fetching UniProt Sequences for ID:  P16219
 Fetching UniProt Isoforms for ID:  P23560
-Fetching UniProt Isoforms for ID:  P16219
+Fetching UniProt Isoforms for ID:  P04217
 Fetching UniProt Isoforms for ID:  Q00889
 Fetching UniProt Isoforms for ID:  Q16363
-Fetching UniProt Isoforms for ID:  P04217
+Fetching UniProt Isoforms for ID:  P16219
 Sequence files created...
-
-Downloading UniProt sequence annotations...
-
-Downloading annotations for P23560
-Downloading annotations for P16219
-Downloading annotations for Q00889
-Downloading annotations for Q16363
-Downloading annotations for P04217
-Processing positions...
-
-Adding binary annotations...
 
 You have 0 data points that failed to match a UniProt Sequence
 Proceeding with 5 remaining...
 
-Processing 0 of 5
----------PRINTING FOR MODEL-------- 1
-Calculating surface area...
+Retrieving PDB structures...
 
-Processing 1 of 5
----------PRINTING FOR MODEL-------- 1
-Calculating surface area...
+Processing PDB structures...
 
-Processing 2 of 5
----------PRINTING FOR MODEL-------- 1
-Calculating surface area...
+Starting PDB structures download...
 
-Processing 3 of 5
----------PRINTING FOR MODEL-------- 1
-Calculating surface area...
+PDB structure file exists..
+PDB structure file exists..
+PDB structure file exists..
 
-Processing 4 of 5
----------PRINTING FOR MODEL-------- 1
-Calculating surface area...
+PDB file processing finished..
+PDB Information successfully added...
+PDB structures are found for 1 of 5.
+4 of 5 failed to match with PDB structure.
 
----------PRINTING FOR MODEL-------- 2
----------PRINTING FOR MODEL-------- 3
+Downloading UniProt sequence annotations...
+
+Downloading annotations for P23560
+Processing positions...
+
+Adding binary annotations...
+
+Aligning sequences...
+
+PDB matching is completed...
+
+SUMMARY
+-------
+0 data points that failed to match a UniProt Sequence are discarded.
+Of the remaining 5:
+--0 of 1 successfully aligned with PDB structures.
+--1 of 1 not found on the covered area by the structure.
+--PDB structures not found for 4 datapoints.
+--5 will be searched in Swiss-Model database.
+
+Proceeding to  SwissModel search...
+------------------------------------
+
+Generating SwissModel file...
+
+Index File Processed...
+
+Beginning SwissModel files download...
+Downloading UniProt sequence annotations...
+
+Processing positions...
+
+Adding binary annotations...
+
+Aligning sequences...
+
+SwissModel matching is completed...
+
+SUMMARY
+-------
+0 data points that failed to match a UniProt Sequence are discarded.
+Of the remaining 5:
+--0 of 1 successfully aligned with PDB structures.
+--0 of 5 successfully aligned with SwissModels structures.
+--5 will be searched in ModBase database.
+
+Proceeding to ModBase search...
+------------------------------------
+
+Retrieving ModBase models...
+
+Model exists for P23560
+This file doesnt have Quality Score. Replacer: -999 b2357fb2f566c121e00d1f62c374ec18
+Model exists for P04217
+Model exists for Q00889
+Model exists for Q16363
+Model exists for P16219
+
+Modbase model frame constructed.
+
+Downloading UniProt sequence annotations...
+
+Downloading annotations for P23560
+Downloading annotations for P04217
+Downloading annotations for Q00889
+Downloading annotations for Q16363
+Downloading annotations for P16219
+Processing positions...
+
+Adding binary annotations...
+
+Aligning sequences...
+
+Modbase matching is completed...
+
+SUMMARY
+-------
+0 data points that failed to match a UniProt Sequence are discarded.
+Of the remaining 5:
+--0 of 1 successfully aligned with PDB structures.
+--0 of 5 successfully aligned with SwissModels structures.
+--5 of 5 successfully aligned with Modbase structures.
+
+--Remaining 0 not found to match any models.
+--A total of 0 datapoints will not be evaluated.
+
+FOR CHECKING :  True
+Generating FreeSASA files...
+------------------------------------
+
+Calculation RSA for PDB Structure Files...
+
+Calculation RSA for SwissModel Files...
+
+Calculation RSA for Modbase Model Files...
+
+Proceeding to 3D distance calculation...
+
+
+Assigning surface regions...
+------------------------------------
+
+Extracting interface residues...
+
+Final adjustments are being done...
+
+  prot_uniprotAcc wt_residue  ... glycosylation_dist propeptide_dist
+0          P04217          H  ...              24.46             NaN
+1          P16219          R  ...                NaN             NaN
+2          P23560          V  ...                NaN             0.0
+3          Q00889          H  ...               7.03             NaN
+4          Q16363          Y  ...               8.87             NaN
+
+[5 rows x 74 columns]
 Feature vector successfully created...
-Time passed: 00:00:40.94
