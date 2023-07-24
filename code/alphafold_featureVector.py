@@ -339,7 +339,6 @@ def alphafold(input_set, mode, impute):
 
                 if get_alignments_3D(uniprotID, mod, pdb_path, pdbSequence, 'nan', 'nan', 'nan', mode, Path(path_to_output_files / '3D_alignment'),
                                      'gzip') != None:
-
                     alignments, coords, resnums_for_sasa = get_alignments_3D(uniprotID, mod, pdb_path, pdbSequence, 'nan',
                                                                             'nan', 'nan', mode, Path(path_to_output_files / '3D_alignment'),
                                                                             'gzip')
@@ -413,9 +412,10 @@ def alphafold(input_set, mode, impute):
                         mod)] = list_dist_of_annots  # Getting minimum of all possible models
                 #                uniprot_matched.at[i, annotation_type] = minimum_position
                 else:
-                    print('Model File Not Found')
 
+                    print('Model File Not Found')
                     uniprot_matched.at[i, 'sasa'] = np.NaN
+
 
 
         if len(all_domain_distances) != 0:

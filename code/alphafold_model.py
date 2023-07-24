@@ -25,8 +25,11 @@ def which_model(position):
 def modelCount(path_to_models):
     count_list = []
     for file in list(path_to_models.glob("*")):
-        protein_id = str(file).split('-')[1]
-        count_list.append(protein_id)
+        try:
+            protein_id = str(file).split('-')[1]
+            count_list.append(protein_id)
+        except:
+            IndexError
     count_dict = Counter(count_list)
     count_dict = {';'.join(sorted(k for k in count_dict.keys() if count_dict[k] == v)): v for v in
                   set(count_dict.values())}

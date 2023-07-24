@@ -5,9 +5,10 @@ import zlib
 from xml.etree import ElementTree
 from urllib.parse import urlparse, parse_qs, urlencode
 import requests
+import unipressed
 from requests.adapters import HTTPAdapter, Retry
 from unipressed import IdMappingClient
-
+"""
 ## Code adapted from UniProt documentation.
 def get_pdb_ids_2(protein_id):
     POLLING_INTERVAL = 5
@@ -30,7 +31,10 @@ def get_pdb_ids_2(protein_id):
             data={"from": from_db, "to": to_db, "ids": ids},
         )
         check_response(request)
-        return request.json()["jobId"]
+        if check_response != None:
+        	return request.json()["jobId"]
+        else:
+        	return None
 
     def get_next_link(headers):
         re_next_link = re.compile(r'<(.+)>; rel="next"')
@@ -40,17 +44,34 @@ def get_pdb_ids_2(protein_id):
                 return match.group(1)
 
     def check_id_mapping_results_ready(job_id):
+        print('entered')
         while True:
-            request = session.get(f"{API_URL}/idmapping/status/{job_id}")
+            print('True')
+            print('HR-1')
+            try:
+                request = session.get(f"{API_URL}/idmapping/status/{job_id}")
+            except requests.exceptions.RetryError:
+                print('eneted')
+                request = None
+            print('HR0-22')
             check_response(request)
             j = request.json()
-            if "jobStatus" in j:
-                if j["jobStatus"] == "RUNNING":
-                    print(f"Retrying in {POLLING_INTERVAL}s")
-                    time.sleep(POLLING_INTERVAL)
-                else:
-                    raise Exception(j["jobStatus"])
+            print('HR0')
+            try:
+                print('HR1')
+                if "jobStatus" in j:
+                    print('HR2')
+                    if j["jobStatus"] == "RUNNING":
+                        print(f"Retrying in {POLLING_INTERVAL}s")
+                        time.sleep(POLLING_INTERVAL)
+                    else:
+                        print('HR3')
+                        raise Exception(j["jobStatus"])
+            except:
+                print('HR4')
+                requests.exceptions.RetryError
             else:
+                print('HR4')
                 return bool(j["results"] or j["failedIds"])
 
     def get_batch(batch_response, file_format, compressed):
@@ -74,6 +95,7 @@ def get_pdb_ids_2(protein_id):
 
     def get_id_mapping_results_link(job_id):
         url = f"{API_URL}/idmapping/details/{job_id}"
+
         request = session.get(url)
         check_response(request)
         return request.json()["redirectURL"]
@@ -144,41 +166,48 @@ def get_pdb_ids_2(protein_id):
     job_id = submit_id_mapping(
         from_db="UniProtKB_AC-ID", to_db="PDB", ids=protein_id
     )
+    print('skhfkh')
+    print(submit_id_mapping(
+        from_db="UniProtKB_AC-ID", to_db="PDB", ids=protein_id
+    ))
+    print('nor', check_id_mapping_results_ready(job_id))
     if check_id_mapping_results_ready(job_id):
         link = get_id_mapping_results_link(job_id)
         results = get_id_mapping_results_search(link)
-        # Equivalently using the stream endpoint which is more demanding
-        # on the API and so is less stable:
-        # results = get_id_mapping_results_stream(link)
-
-    return [i['to'] for i in results['results']]
+        return [i['to'] for i in results['results']]
+    else:
+        print('no i am here')
+        return None
 def get_pdb_ids(protein_id):
     try:
         request = IdMappingClient.submit(
             source="UniProtKB_AC-ID", dest="PDB", ids={protein_id})
+
         try:
             pdb_list = list(request.each_result())
+            time.sleep(1)
             return [i['to'] for i in pdb_list]
-        except:
+        except unipressed.id_mapping.core.IdMappingError:
+            print('I AM HERE 1')
             get_pdb_ids_2(protein_id)
     except requests.exceptions.HTTPError:
+        print('I AM HERE 2')
         get_pdb_ids_2(protein_id)
     except KeyError:
+        print('I AM HERE 3')
         get_pdb_ids_2(protein_id)
-
 """
+
 def get_pdb_ids(protein_id):
     try:
         request = IdMappingClient.submit(
             source="UniProtKB_AC-ID", dest="PDB", ids={protein_id})
-        try:
-            pdb_list = list(request.each_result())
-            return [i['to'] for i in pdb_list]
-        except:
-            print("UniProt not responding. Try again later.")
+        pdb_list = list(request.each_result())
+        return [i['to'] for i in pdb_list]
     except requests.exceptions.HTTPError:
-        get_pdb_ids_2(protein_id)
+        return  []
+    except unipressed.id_mapping.core.IdMappingError:
+        print('IdMappingError caused by UniProt API service, please try later.')
+        return  []
     except KeyError:
-        get_pdb_ids_2(protein_id)
-"""
-
+        return  []
