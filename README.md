@@ -57,7 +57,7 @@ Results (output) of ASCARIS runs can be found in the **out_files** folder.
 
 &nbsp;
   
-## ASCARIS Usage
+## ASCARIS Installation & Usage
 
 This section intends to guide the users on how to run ASCARIS to produce SAV representations. 
 
