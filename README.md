@@ -59,9 +59,9 @@ Results (output) of ASCARIS runs can be found in the **out_files** folder.
   
 ## ASCARIS Installation & Usage
 
-This section intends to guide the users on how to run ASCARIS to produce SAV representations. 
+This section intends to guide the users on how to install and run ASCARIS to produce SAV representations. 
 
-Please download all the requirements by running the following code:
+Please (i) clone this repository to your local server, and (ii) download all the requirements by running the following code:
 ```
 pip install -r requirements.txt
 
