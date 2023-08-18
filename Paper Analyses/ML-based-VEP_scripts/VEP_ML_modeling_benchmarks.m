@@ -1,0 +1,378 @@
+% Data loading:
+
+opts = detectImportOptions('Paper_files/originaldata/training_uptodate_full.txt');
+opts = setvartype(opts,opts.VariableNames(1,[13:14 17:47]),'char');
+opts = setvartype(opts,opts.VariableNames(1,[9:12 15:16 48:77]),'double');
+
+T_final = readtable('Paper_files/originaldata/training_uptodate_full.txt',opts);
+neut_delet = table2array(T_final(:,78));
+T_full = T_final(:,[9:12 14:77]);
+
+T_benchmark_mt = readtable('Paper_files/originaldata/training_uptodate_wo_MT_benchmark_datapoints_2014_selected.txt',opts);
+neut_delet_mt = table2array(T_benchmark_mt(:,78));
+T_full_mt = T_benchmark_mt(:,[9:12 14:77]);
+
+T_benchmark_2019train_mt = readtable('Paper_files/originaldata/training_uptodate_wo_MT_benchmark_datapoints.txt',opts);
+neut_delet_2019train_mt = table2array(T_benchmark_2019train_mt(:,78));
+T_full_2019train_mt = T_benchmark_2019train_mt(:,[9:12 14:77]);
+
+T_benchmark_mt_test = readtable('Paper_files/benchmark/mutationtaster.txt',opts);
+neut_delet_mt_test = table2array(T_benchmark_mt_test(:,78));
+T_full_mt_test = T_benchmark_mt_test(:,[9:12 14:77]);
+
+save T_all_mt.mat T_full_mt neut_delet_mt T_full_mt_test neut_delet_mt_test T_full_2019train_mt neut_delet_2019train_mt T_benchmark_mt_test T_benchmark_2019train_mt T_benchmark_mt
+
+
+
+% Training and testing:
+
+Mdl_full_cval_mt=fitcensemble(T_full_mt,neut_delet_mt,'Method','Bag','CrossVal','on','KFold',5);
+[validationPredictions,validationScores]=kfoldPredict(Mdl_full_cval_mt);
+confmat=confusionmat(Mdl_full_cval_mt.Y,validationPredictions);
+confmat_fix=[confmat(2,2) confmat(2,1);confmat(1,2) confmat(1,1)];
+confmat_fix(1,1)
+length(find(Mdl_full_cval_mt.Y==1 & validationPredictions==1))
+[~,~,~,AUC]=perfcurve(Mdl_full_cval_mt.Y,validationScores(:,2),1);
+TP=confmat_fix(1,1);TN=confmat_fix(2,2);FN=confmat_fix(1,2);FP=confmat_fix(2,1);
+Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));
+Perf_table_mt_cval=table(AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+Mdl_full_test_mt=fitcensemble(T_full_mt,neut_delet_mt,'Method','Bag');
+[testPredictions,testScores]=predict(Mdl_full_test_mt,T_full_mt_test);
+confmat=confusionmat(neut_delet_mt_test,testPredictions);
+confmat_fix=[confmat(2,2) confmat(2,1);confmat(1,2) confmat(1,1)];
+confmat_fix(1,1)
+length(find(neut_delet_mt_test==1 & testPredictions==1))
+[~,~,~,AUC]=perfcurve(neut_delet_mt_test,testScores(:,2),1);
+TP=confmat_fix(1,1);TN=confmat_fix(2,2);FN=confmat_fix(1,2);FP=confmat_fix(2,1);
+Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));
+Perf_table_mt_test=table(AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+Mdl_full_2019train_test_mt=fitcensemble(T_full_2019train_mt,neut_delet_2019train_mt,'Method','Bag');
+[testPredictions,testScores]=predict(Mdl_full_2019train_test_mt,T_full_mt_test);
+confmat=confusionmat(neut_delet_mt_test,testPredictions);
+confmat_fix=[confmat(2,2) confmat(2,1);confmat(1,2) confmat(1,1)];
+confmat_fix(1,1)
+length(find(neut_delet_mt_test==1 & testPredictions==1))
+[~,~,~,AUC]=perfcurve(neut_delet_mt_test,testScores(:,2),1);
+TP=confmat_fix(1,1);TN=confmat_fix(2,2);FN=confmat_fix(1,2);FP=confmat_fix(2,1);
+Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));
+Perf_table_2019train_mt_test=table(AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+save Mdl_full_mt.mat Mdl_full_cval_mt Mdl_full_test_mt Mdl_full_2019train_test_mt
+save Perf_tables_mt.mat Perf_table_mt_cval Perf_table_mt_test Perf_table_2019train_mt_test
+
+
+
+% Training the finalized model (Hyper-parameter optimization):
+
+n = size(T_full_mt,1);
+m = floor(log(n - 1)/log(3));
+maxNumSplits = 3.^(0:m);
+maxNumSplits = [maxNumSplits([8]) size(T_full,1)-1];
+numMNS = numel(maxNumSplits);
+numTrees = [300];
+numT = numel(numTrees);
+numvartosamp = [8 24 size(T_full_mt,2)];
+numV = numel(numvartosamp);
+Mdl_rf_mt_hypopt = cell(numT,numMNS,numV);
+AUC=zeros(numT*numV*numMNS,1);Recall=zeros(numT*numV*numMNS,1);Precision=zeros(numT*numV*numMNS,1);F1score=zeros(numT*numV*numMNS,1);Accuracy=zeros(numT*numV*numMNS,1);MCC=zeros(numT*numV*numMNS,1);TP=zeros(numT*numV*numMNS,1);FP=zeros(numT*numV*numMNS,1);FN=zeros(numT*numV*numMNS,1);TN=zeros(numT*numV*numMNS,1);
+NumVartoSam=repmat(numvartosamp',numT*numMNS,1);
+maxNumSplit=repmat([repmat(maxNumSplits(1,1),numV,1);repmat(maxNumSplits(1,2),numV,1)],numT,1);
+numTree=repmat(numTrees(1,1),6,1);
+Perf_table_mt_test_hyperpar=table(numTree,maxNumSplit,NumVartoSam,AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+to=0;
+for i = 1:numT
+    for j = 1:numMNS
+        for k = 1:numV
+            to=to+1;
+            t = templateTree('MaxNumSplits',maxNumSplits(j),'NumVariablesToSample',numvartosamp(k));
+            disp(['numTrees: ', num2str(numTrees(i)), ', maxNumSplit: ', num2str(maxNumSplits(j)), ', NumVariablesToSample: ', num2str(numvartosamp(k))])
+            Mdl_rf_mt_hypopt{i,j,k} = fitcensemble(T_full_mt,neut_delet_mt,'Method','Bag','NumLearningCycles',numTrees(i),'Learners',t);
+            [testPredictions,testScores]=predict(Mdl_rf_mt_hypopt{i,j,k},T_full_mt_test);
+            confmat=confusionmat(neut_delet_mt_test,testPredictions);
+            confmat_fix=[confmat(2,2) confmat(2,1);confmat(1,2) confmat(1,1)];
+            [~,~,~,AUC]=perfcurve(neut_delet_mt_test,testScores(:,2),1);
+            TP=confmat_fix(1,1);TN=confmat_fix(2,2);FN=confmat_fix(1,2);FP=confmat_fix(2,1);
+            Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));
+            Perf_table_temp=table(AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+            Perf_table_mt_test_hyperpar(to,4:13)=Perf_table_temp;
+        end
+    end
+end
+
+n = size(T_full_mt,1);
+m = floor(log(n - 1)/log(3));
+maxNumSplits = 3.^(0:m);
+maxNumSplits = [maxNumSplits([8]) size(T_full,1)-1];
+numMNS = numel(maxNumSplits);
+numTrees = [300];
+numT = numel(numTrees);
+numvartosamp = [8 24 size(T_full_mt,2)];
+numV = numel(numvartosamp);
+Mdl_rf_2019train_mt_hypopt = cell(numT,numMNS,numV);
+AUC=zeros(numT*numV*numMNS,1);Recall=zeros(numT*numV*numMNS,1);Precision=zeros(numT*numV*numMNS,1);F1score=zeros(numT*numV*numMNS,1);Accuracy=zeros(numT*numV*numMNS,1);MCC=zeros(numT*numV*numMNS,1);TP=zeros(numT*numV*numMNS,1);FP=zeros(numT*numV*numMNS,1);FN=zeros(numT*numV*numMNS,1);TN=zeros(numT*numV*numMNS,1);
+NumVartoSam=repmat(numvartosamp',numT*numMNS,1);
+maxNumSplit=repmat([repmat(maxNumSplits(1,1),numV,1);repmat(maxNumSplits(1,2),numV,1)],numT,1);
+numTree=repmat(numTrees(1,1),6,1);
+Perf_table_2019train_mt_test_hyperpar=table(numTree,maxNumSplit,NumVartoSam,AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+to=0;
+for i = 1:numT
+    for j = 1:numMNS
+        for k = 1:numV
+            to=to+1;
+            t = templateTree('MaxNumSplits',maxNumSplits(j),'NumVariablesToSample',numvartosamp(k));
+            disp(['numTrees: ', num2str(numTrees(i)), ', maxNumSplit: ', num2str(maxNumSplits(j)), ', NumVariablesToSample: ', num2str(numvartosamp(k))])
+            Mdl_rf_2019train_mt_hypopt{i,j,k} = fitcensemble(T_full_2019train_mt,neut_delet_2019train_mt,'Method','Bag','NumLearningCycles',numTrees(i),'Learners',t);
+            [testPredictions,testScores]=predict(Mdl_rf_2019train_mt_hypopt{i,j,k},T_full_mt_test);
+            confmat=confusionmat(neut_delet_mt_test,testPredictions);
+            confmat_fix=[confmat(2,2) confmat(2,1);confmat(1,2) confmat(1,1)];
+            [~,~,~,AUC]=perfcurve(neut_delet_mt_test,testScores(:,2),1);
+            TP=confmat_fix(1,1);TN=confmat_fix(2,2);FN=confmat_fix(1,2);FP=confmat_fix(2,1);
+            Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));
+            Perf_table_temp=table(AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+            Perf_table_2019train_mt_test_hyperpar(to,4:13)=Perf_table_temp;
+        end
+    end
+end
+
+save Mdl_mt_hypopt.mat Mdl_rf_mt_hypopt Mdl_rf_2019train_mt_hypopt
+save Perf_tables_mt_hyperpar.mat Perf_table_mt_test_hyperpar Perf_table_2019train_mt_test_hyperpar
+
+
+
+% Family-based performance calculation on the MT test dataset:
+
+Family=({'Enzymes';'Membrane_receptors';'Transcription_factors';'Ion_channels';'Epigenetic_regulators';'Others';'Others_4';'Overall'});
+AUC=zeros(8,1);Recall=zeros(8,1);Precision=zeros(8,1);F1score=zeros(8,1);Accuracy=zeros(8,1);MCC=zeros(8,1);TP=zeros(8,1);FN=zeros(8,1);FP=zeros(8,1);TN=zeros(8,1);
+Perf_table_mt_test_family=table(Family,AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+t = templateTree('MaxNumSplits',96273,'NumVariablesToSample',24);
+Mdl_full_test_mt=fitcensemble(T_full_mt,neut_delet_mt,'Method','Bag','NumLearningCycles',300,'Learners',t);
+[testPredictions,testScores]=predict(Mdl_full_test_mt,T_full_mt_test);
+
+family_mt_test=table2array(T_benchmark_mt_test(:,8));
+ind_enzyme=find(contains(family_mt_test,'Enzymes')==1);neut_delet_mt_test_fam{1,1}=neut_delet_mt_test(ind_enzyme,1);testPred_fam{1,1}=testPredictions(ind_enzyme,1);testScor_fam{1,1}=testScores(ind_enzyme,:);
+ind_membrane=find(contains(family_mt_test,'Membrane')==1);neut_delet_mt_test_fam{2,1}=neut_delet_mt_test(ind_membrane,1);testPred_fam{2,1}=testPredictions(ind_membrane,1);testScor_fam{2,1}=testScores(ind_membrane,:);
+ind_tfactor=find(contains(family_mt_test,'Transcription')==1);neut_delet_mt_test_fam{3,1}=neut_delet_mt_test(ind_tfactor,1);testPred_fam{3,1}=testPredictions(ind_tfactor,1);testScor_fam{3,1}=testScores(ind_tfactor,:);
+ind_ion=find(contains(family_mt_test,'Ion')==1);neut_delet_mt_test_fam{4,1}=neut_delet_mt_test(ind_ion,1);testPred_fam{4,1}=testPredictions(ind_ion,1);testScor_fam{4,1}=testScores(ind_ion,:);
+ind_epigen=find(contains(family_mt_test,'Epigenetic')==1);neut_delet_mt_test_fam{5,1}=neut_delet_mt_test(ind_epigen,1);testPred_fam{5,1}=testPredictions(ind_epigen,1);testScor_fam{5,1}=testScores(ind_epigen,:);
+ind_others=find(contains(family_mt_test,'nan')==1);neut_delet_mt_test_fam{6,1}=neut_delet_mt_test(ind_others,1);testPred_fam{6,1}=testPredictions(ind_others,1);testScor_fam{6,1}=testScores(ind_others,:);
+ind_others4=unique([ind_tfactor;ind_ion;ind_epigen;ind_others]);neut_delet_mt_test_fam{7,1}=neut_delet_mt_test(ind_others4,1);testPred_fam{7,1}=testPredictions(ind_others4,1);testScor_fam{7,1}=testScores(ind_others4,:);
+neut_delet_mt_test_fam{8,1}=neut_delet_mt_test;testPred_fam{8,1}=testPredictions;testScor_fam{8,1}=testScores;
+
+for i=1:8
+    confmat=confusionmat(neut_delet_mt_test_fam{i,1},testPred_fam{i,1});confmat_fix=[confmat(2,2) confmat(2,1);confmat(1,2) confmat(1,1)];[~,~,~,AUC]=perfcurve(neut_delet_mt_test_fam{i,1},testScor_fam{i,1}(:,2),1);TP=confmat_fix(1,1);TN=confmat_fix(2,2);FN=confmat_fix(1,2);FP=confmat_fix(2,1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_temp=table(AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+    Perf_table_mt_test_family(i,2:11)=Perf_table_temp;
+end
+
+Family=({'Enzymes';'Membrane_receptors';'Transcription_factors';'Ion_channels';'Epigenetic_regulators';'Others';'Others_4';'Overall'});
+AUC=zeros(8,1);Recall=zeros(8,1);Precision=zeros(8,1);F1score=zeros(8,1);Accuracy=zeros(8,1);MCC=zeros(8,1);TP=zeros(8,1);FN=zeros(8,1);FP=zeros(8,1);TN=zeros(8,1);
+Perf_table_2019train_mt_test_family=table(Family,AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+t = templateTree('MaxNumSplits',96273,'NumVariablesToSample',8);
+Mdl_full_2019train_test_mt=fitcensemble(T_full_2019train_mt,neut_delet_2019train_mt,'Method','Bag','NumLearningCycles',300,'Learners',t);
+[testPredictions,testScores]=predict(Mdl_full_2019train_test_mt,T_full_mt_test);
+
+family_mt_test=table2array(T_benchmark_mt_test(:,8));
+ind_enzyme=find(contains(family_mt_test,'Enzymes')==1);neut_delet_mt_test_fam{1,1}=neut_delet_mt_test(ind_enzyme,1);testPred_fam{1,1}=testPredictions(ind_enzyme,1);testScor_fam{1,1}=testScores(ind_enzyme,:);
+ind_membrane=find(contains(family_mt_test,'Membrane')==1);neut_delet_mt_test_fam{2,1}=neut_delet_mt_test(ind_membrane,1);testPred_fam{2,1}=testPredictions(ind_membrane,1);testScor_fam{2,1}=testScores(ind_membrane,:);
+ind_tfactor=find(contains(family_mt_test,'Transcription')==1);neut_delet_mt_test_fam{3,1}=neut_delet_mt_test(ind_tfactor,1);testPred_fam{3,1}=testPredictions(ind_tfactor,1);testScor_fam{3,1}=testScores(ind_tfactor,:);
+ind_ion=find(contains(family_mt_test,'Ion')==1);neut_delet_mt_test_fam{4,1}=neut_delet_mt_test(ind_ion,1);testPred_fam{4,1}=testPredictions(ind_ion,1);testScor_fam{4,1}=testScores(ind_ion,:);
+ind_epigen=find(contains(family_mt_test,'Epigenetic')==1);neut_delet_mt_test_fam{5,1}=neut_delet_mt_test(ind_epigen,1);testPred_fam{5,1}=testPredictions(ind_epigen,1);testScor_fam{5,1}=testScores(ind_epigen,:);
+ind_others=find(contains(family_mt_test,'nan')==1);neut_delet_mt_test_fam{6,1}=neut_delet_mt_test(ind_others,1);testPred_fam{6,1}=testPredictions(ind_others,1);testScor_fam{6,1}=testScores(ind_others,:);
+ind_others4=unique([ind_tfactor;ind_ion;ind_epigen;ind_others]);neut_delet_mt_test_fam{7,1}=neut_delet_mt_test(ind_others4,1);testPred_fam{7,1}=testPredictions(ind_others4,1);testScor_fam{7,1}=testScores(ind_others4,:);
+neut_delet_mt_test_fam{8,1}=neut_delet_mt_test;testPred_fam{8,1}=testPredictions;testScor_fam{8,1}=testScores;
+
+for i=1:8
+    confmat=confusionmat(neut_delet_mt_test_fam{i,1},testPred_fam{i,1});confmat_fix=[confmat(2,2) confmat(2,1);confmat(1,2) confmat(1,1)];[~,~,~,AUC]=perfcurve(neut_delet_mt_test_fam{i,1},testScor_fam{i,1}(:,2),1);TP=confmat_fix(1,1);TN=confmat_fix(2,2);FN=confmat_fix(1,2);FP=confmat_fix(2,1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_temp=table(AUC,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+    Perf_table_2019train_mt_test_family(i,2:11)=Perf_table_temp;
+end
+
+save Perf_tables_mt_family.mat Perf_table_mt_test_family Perf_table_2019train_mt_test_family
+
+
+
+% Other methods' performance calculations:
+
+Methods=({'PPH2_div';'PPH2_var';'MT';'SIFT';'PROVEAN'});
+
+mt_perf_other_methods = readtable('Paper_files/benchmark/predictions_other_methods/mt_preds.txt');
+c=[table2array(mt_perf_other_methods(:,1:2)) num2cell(table2array(mt_perf_other_methods(:,3))) table2array(mt_perf_other_methods(:,4))];
+c=cellfun(@string,c);
+c={join(c,'')};d=cellstr(c{1,1});
+
+[Lia,Locb]=ismember(T_benchmark_mt_test.meta_merged,d);
+mt_perf_other_methods_ourdataset=mt_perf_other_methods(Locb,:);
+
+%overall
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_overall=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div=mt_perf_other_methods.PPH2_div(Locb);TP=length(find(ismember(mt_perf_PPH2div,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_overall(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var=mt_perf_other_methods.PPH2_var(Locb);TP=length(find(ismember(mt_perf_PPH2var,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_overall(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT=mt_perf_other_methods.MT(Locb);TP=length(find(ismember(mt_perf_MT,'TP'))==1);TN=length(find(ismember(mt_perf_MT,'TN'))==1);FN=length(find(ismember(mt_perf_MT,'FN'))==1);FP=length(find(ismember(mt_perf_MT,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_overall(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT=mt_perf_other_methods.SIFT(Locb);TP=length(find(ismember(mt_perf_SIFT,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_overall(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN=mt_perf_other_methods.PROVEAN(Locb);TP=length(find(ismember(mt_perf_PROVEAN,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_overall(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+%enzyme
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_enzyme=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div_enzyme=mt_perf_PPH2div(ind_enzyme);TP=length(find(ismember(mt_perf_PPH2div_enzyme,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_enzyme,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_enzyme,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_enzyme,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_enzyme(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_enzyme=mt_perf_PPH2var(ind_enzyme);TP=length(find(ismember(mt_perf_PPH2var_enzyme,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_enzyme,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_enzyme,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_enzyme,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_enzyme(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_enzyme=mt_perf_MT(ind_enzyme);TP=length(find(ismember(mt_perf_MT_enzyme,'TP'))==1);TN=length(find(ismember(mt_perf_MT_enzyme,'TN'))==1);FN=length(find(ismember(mt_perf_MT_enzyme,'FN'))==1);FP=length(find(ismember(mt_perf_MT_enzyme,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_enzyme(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_enzyme=mt_perf_SIFT(ind_enzyme);TP=length(find(ismember(mt_perf_SIFT_enzyme,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_enzyme,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_enzyme,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_enzyme,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_enzyme(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_enzyme=mt_perf_PROVEAN(ind_enzyme);TP=length(find(ismember(mt_perf_PROVEAN_enzyme,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_enzyme,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_enzyme,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_enzyme,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_enzyme(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+%membrane
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_membrane=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div_membrane=mt_perf_PPH2div(ind_membrane);TP=length(find(ismember(mt_perf_PPH2div_membrane,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_membrane,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_membrane,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_membrane,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_membrane(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_membrane=mt_perf_PPH2var(ind_membrane);TP=length(find(ismember(mt_perf_PPH2var_membrane,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_membrane,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_membrane,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_membrane,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_membrane(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_membrane=mt_perf_MT(ind_membrane);TP=length(find(ismember(mt_perf_MT_membrane,'TP'))==1);TN=length(find(ismember(mt_perf_MT_membrane,'TN'))==1);FN=length(find(ismember(mt_perf_MT_membrane,'FN'))==1);FP=length(find(ismember(mt_perf_MT_membrane,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_membrane(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_membrane=mt_perf_SIFT(ind_membrane);TP=length(find(ismember(mt_perf_SIFT_membrane,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_membrane,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_membrane,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_membrane,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_membrane(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_membrane=mt_perf_PROVEAN(ind_membrane);TP=length(find(ismember(mt_perf_PROVEAN_membrane,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_membrane,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_membrane,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_membrane,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_membrane(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+%tfactor
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_tfactor=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div_tfactor=mt_perf_PPH2div(ind_tfactor);TP=length(find(ismember(mt_perf_PPH2div_tfactor,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_tfactor,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_tfactor,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_tfactor,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_tfactor(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_tfactor=mt_perf_PPH2var(ind_tfactor);TP=length(find(ismember(mt_perf_PPH2var_tfactor,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_tfactor,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_tfactor,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_tfactor,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_tfactor(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_tfactor=mt_perf_MT(ind_tfactor);TP=length(find(ismember(mt_perf_MT_tfactor,'TP'))==1);TN=length(find(ismember(mt_perf_MT_tfactor,'TN'))==1);FN=length(find(ismember(mt_perf_MT_tfactor,'FN'))==1);FP=length(find(ismember(mt_perf_MT_tfactor,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_tfactor(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_tfactor=mt_perf_SIFT(ind_tfactor);TP=length(find(ismember(mt_perf_SIFT_tfactor,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_tfactor,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_tfactor,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_tfactor,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_tfactor(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_tfactor=mt_perf_PROVEAN(ind_tfactor);TP=length(find(ismember(mt_perf_PROVEAN_tfactor,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_tfactor,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_tfactor,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_tfactor,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_tfactor(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+%ion
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_ion=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div_ion=mt_perf_PPH2div(ind_ion);TP=length(find(ismember(mt_perf_PPH2div_ion,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_ion,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_ion,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_ion,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_ion(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_ion=mt_perf_PPH2var(ind_ion);TP=length(find(ismember(mt_perf_PPH2var_ion,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_ion,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_ion,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_ion,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_ion(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_ion=mt_perf_MT(ind_ion);TP=length(find(ismember(mt_perf_MT_ion,'TP'))==1);TN=length(find(ismember(mt_perf_MT_ion,'TN'))==1);FN=length(find(ismember(mt_perf_MT_ion,'FN'))==1);FP=length(find(ismember(mt_perf_MT_ion,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_ion(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_ion=mt_perf_SIFT(ind_ion);TP=length(find(ismember(mt_perf_SIFT_ion,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_ion,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_ion,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_ion,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_ion(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_ion=mt_perf_PROVEAN(ind_ion);TP=length(find(ismember(mt_perf_PROVEAN_ion,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_ion,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_ion,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_ion,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_ion(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+%epigen
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_epigen=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div_epigen=mt_perf_PPH2div(ind_epigen);TP=length(find(ismember(mt_perf_PPH2div_epigen,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_epigen,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_epigen,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_epigen,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_epigen(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_epigen=mt_perf_PPH2var(ind_epigen);TP=length(find(ismember(mt_perf_PPH2var_epigen,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_epigen,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_epigen,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_epigen,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_epigen(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_epigen=mt_perf_MT(ind_epigen);TP=length(find(ismember(mt_perf_MT_epigen,'TP'))==1);TN=length(find(ismember(mt_perf_MT_epigen,'TN'))==1);FN=length(find(ismember(mt_perf_MT_epigen,'FN'))==1);FP=length(find(ismember(mt_perf_MT_epigen,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_epigen(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_epigen=mt_perf_SIFT(ind_epigen);TP=length(find(ismember(mt_perf_SIFT_epigen,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_epigen,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_epigen,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_epigen,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_epigen(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_epigen=mt_perf_PROVEAN(ind_epigen);TP=length(find(ismember(mt_perf_PROVEAN_epigen,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_epigen,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_epigen,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_epigen,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_epigen(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+%others
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_others=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div_others=mt_perf_PPH2div(ind_others);TP=length(find(ismember(mt_perf_PPH2div_others,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_others,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_others,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_others,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_others=mt_perf_PPH2var(ind_others);TP=length(find(ismember(mt_perf_PPH2var_others,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_others,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_others,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_others,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_others=mt_perf_MT(ind_others);TP=length(find(ismember(mt_perf_MT_others,'TP'))==1);TN=length(find(ismember(mt_perf_MT_others,'TN'))==1);FN=length(find(ismember(mt_perf_MT_others,'FN'))==1);FP=length(find(ismember(mt_perf_MT_others,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_others=mt_perf_SIFT(ind_others);TP=length(find(ismember(mt_perf_SIFT_others,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_others,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_others,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_others,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_others=mt_perf_PROVEAN(ind_others);TP=length(find(ismember(mt_perf_PROVEAN_others,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_others,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_others,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_others,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+%others4
+Recall=zeros(5,1);Precision=zeros(5,1);F1score=zeros(5,1);Accuracy=zeros(5,1);MCC=zeros(5,1);TP=zeros(5,1);FN=zeros(5,1);FP=zeros(5,1);TN=zeros(5,1);
+Perf_table_mt_other_methods_others4=table(Methods,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2div_others4=mt_perf_PPH2div(ind_others4);TP=length(find(ismember(mt_perf_PPH2div_others4,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_others4,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_others4,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_others4,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others4(1,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_others4=mt_perf_PPH2var(ind_others4);TP=length(find(ismember(mt_perf_PPH2var_others4,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_others4,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_others4,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_others4,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others4(2,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_others4=mt_perf_MT(ind_others4);TP=length(find(ismember(mt_perf_MT_others4,'TP'))==1);TN=length(find(ismember(mt_perf_MT_others4,'TN'))==1);FN=length(find(ismember(mt_perf_MT_others4,'FN'))==1);FP=length(find(ismember(mt_perf_MT_others4,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others4(3,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_others4=mt_perf_SIFT(ind_others4);TP=length(find(ismember(mt_perf_SIFT_others4,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_others4,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_others4,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_others4,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others4(4,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_others4=mt_perf_PROVEAN(ind_others4);TP=length(find(ismember(mt_perf_PROVEAN_others4,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_others4,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_others4,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_others4,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));Perf_table_mt_other_methods_others4(5,2:10)=table(Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+save Perf_tables_mt_other_methods.mat Perf_table_mt_other_methods_overall Perf_table_mt_other_methods_enzyme Perf_table_mt_other_methods_membrane Perf_table_mt_other_methods_tfactor Perf_table_mt_other_methods_ion Perf_table_mt_other_methods_epigen Perf_table_mt_other_methods_others Perf_table_mt_other_methods_others4
+
+
+
+% Challenging dataset construction and performance calculation:
+
+mt_perf_Ours=cell(length(testPredictions),1);
+for i=1:length(testPredictions)
+    if testPredictions(i,1)==1 && neut_delet_mt_test(i,1)==1
+        mt_perf_Ours(i,1)=cellstr('TP');
+    end
+    if testPredictions(i,1)==1 && neut_delet_mt_test(i,1)==0
+        mt_perf_Ours(i,1)=cellstr('FP');
+    end
+    if testPredictions(i,1)==0 && neut_delet_mt_test(i,1)==1
+        mt_perf_Ours(i,1)=cellstr('FN');
+    end
+    if testPredictions(i,1)==0 && neut_delet_mt_test(i,1)==0
+        mt_perf_Ours(i,1)=cellstr('TN');
+    end
+end
+
+ind_neut=find(neut_delet_mt_test==0);
+ind_dele=find(neut_delet_mt_test==1);
+
+mt_perf_PPH2div_neut=mt_perf_PPH2div(ind_neut);
+mt_perf_PPH2var_neut=mt_perf_PPH2var(ind_neut);
+mt_perf_MT_neut=mt_perf_MT(ind_neut);
+mt_perf_SIFT_neut=mt_perf_SIFT(ind_neut);
+mt_perf_PROVEAN_neut=mt_perf_PROVEAN(ind_neut);
+mt_perf_Ours_neut=mt_perf_Ours(ind_neut);
+
+neut_T_count=zeros(length(ind_neut),1);
+for i=1:length(mt_perf_PPH2div_neut)
+    co=0;
+    if ismember(mt_perf_PPH2div_neut(i,1),'TN')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_PPH2var_neut(i,1),'TN')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_MT_neut(i,1),'TN')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_SIFT_neut(i,1),'TN')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_PROVEAN_neut(i,1),'TN')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_Ours_neut(i,1),'TN')==1
+        co=co+1;
+    end
+    neut_T_count(i,1)=co;
+end
+ind_neut_chal=ind_neut(find(neut_T_count<3));
+
+mt_perf_PPH2div_dele=mt_perf_PPH2div(ind_dele);
+mt_perf_PPH2var_dele=mt_perf_PPH2var(ind_dele);
+mt_perf_MT_dele=mt_perf_MT(ind_dele);
+mt_perf_SIFT_dele=mt_perf_SIFT(ind_dele);
+mt_perf_PROVEAN_dele=mt_perf_PROVEAN(ind_dele);
+mt_perf_Ours_dele=mt_perf_Ours(ind_dele);
+
+dele_T_count=zeros(length(ind_dele),1);
+for i=1:length(mt_perf_PPH2div_dele)
+    co=0;
+    if ismember(mt_perf_PPH2div_dele(i,1),'TP')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_PPH2var_dele(i,1),'TP')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_MT_dele(i,1),'TP')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_SIFT_dele(i,1),'TP')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_PROVEAN_dele(i,1),'TP')==1
+        co=co+1;
+    end
+    if ismember(mt_perf_Ours_dele(i,1),'TP')==1
+        co=co+1;
+    end
+    dele_T_count(i,1)=co;
+end
+ind_dele_chal=ind_dele(find(dele_T_count<3));
+
+ind_chal=unique([ind_neut_chal;ind_dele_chal]);
+neut_delet_mt_test_chal=neut_delet_mt_test(ind_chal,1);
+
+Methods_chal=({'PPH2_div';'PPH2_var';'MT';'SIFT';'PROVEAN';'Ours'});
+Recall=zeros(6,1);Precision=zeros(6,1);F1score=zeros(6,1);Accuracy=zeros(6,1);NPV=zeros(6,1);Specificity=zeros(6,1);MCC=zeros(6,1);TP=zeros(6,1);FN=zeros(6,1);FP=zeros(6,1);TN=zeros(6,1);
+Perf_table_mt_all_methods_challenging=table(Methods_chal,NPV,Specificity,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+mt_perf_PPH2div_chal=mt_perf_PPH2div(ind_chal);TP=length(find(ismember(mt_perf_PPH2div_chal,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2div_chal,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2div_chal,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2div_chal,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));NPV=TN/(TN+FN);Specificity=TN/(TN+FP);Perf_table_mt_all_methods_challenging(1,2:12)=table(NPV,Specificity,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PPH2var_chal=mt_perf_PPH2var(ind_chal);TP=length(find(ismember(mt_perf_PPH2var_chal,'TP'))==1);TN=length(find(ismember(mt_perf_PPH2var_chal,'TN'))==1);FN=length(find(ismember(mt_perf_PPH2var_chal,'FN'))==1);FP=length(find(ismember(mt_perf_PPH2var_chal,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));NPV=TN/(TN+FN);Specificity=TN/(TN+FP);Perf_table_mt_all_methods_challenging(2,2:12)=table(NPV,Specificity,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_MT_chal=mt_perf_MT(ind_chal);TP=length(find(ismember(mt_perf_MT_chal,'TP'))==1);TN=length(find(ismember(mt_perf_MT_chal,'TN'))==1);FN=length(find(ismember(mt_perf_MT_chal,'FN'))==1);FP=length(find(ismember(mt_perf_MT_chal,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));NPV=TN/(TN+FN);Specificity=TN/(TN+FP);Perf_table_mt_all_methods_challenging(3,2:12)=table(NPV,Specificity,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_SIFT_chal=mt_perf_SIFT(ind_chal);TP=length(find(ismember(mt_perf_SIFT_chal,'TP'))==1);TN=length(find(ismember(mt_perf_SIFT_chal,'TN'))==1);FN=length(find(ismember(mt_perf_SIFT_chal,'FN'))==1);FP=length(find(ismember(mt_perf_SIFT_chal,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));NPV=TN/(TN+FN);Specificity=TN/(TN+FP);Perf_table_mt_all_methods_challenging(4,2:12)=table(NPV,Specificity,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_PROVEAN_chal=mt_perf_PROVEAN(ind_chal);TP=length(find(ismember(mt_perf_PROVEAN_chal,'TP'))==1);TN=length(find(ismember(mt_perf_PROVEAN_chal,'TN'))==1);FN=length(find(ismember(mt_perf_PROVEAN_chal,'FN'))==1);FP=length(find(ismember(mt_perf_PROVEAN_chal,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));NPV=TN/(TN+FN);Specificity=TN/(TN+FP);Perf_table_mt_all_methods_challenging(5,2:12)=table(NPV,Specificity,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+mt_perf_Ours_chal=mt_perf_Ours(ind_chal);TP=length(find(ismember(mt_perf_Ours_chal,'TP'))==1);TN=length(find(ismember(mt_perf_Ours_chal,'TN'))==1);FN=length(find(ismember(mt_perf_Ours_chal,'FN'))==1);FP=length(find(ismember(mt_perf_Ours_chal,'FP'))==1);Recall=TP/(TP+FN);Precision=TP/(TP+FP);F1score=(2*TP)/(2*TP+FP+FN);Accuracy=(TP+TN)/(TP+FP+FN+TN);MCC=((TP*TN)-(FP*FN))/(((TP+FP)*(TP+FN)*(TN+FP)*(TN+FN))^(1/2));NPV=TN/(TN+FN);Specificity=TN/(TN+FP);Perf_table_mt_all_methods_challenging(6,2:12)=table(NPV,Specificity,Recall,Precision,F1score,Accuracy,MCC,TP,FN,FP,TN);
+
+save Perf_tables_mt_all_methods_challenging.mat Perf_table_mt_all_methods_challenging
+
+
