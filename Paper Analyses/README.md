@@ -1,29 +1,21 @@
 ### Datasets in the 'Paper Analyses' folder
-The files in these folders concerns the various analyses conducted throughout the ASCARIS
-paper. They are used to create machine learning models. Each file has a _raw and _imputed 
-version. In the latter one the empty values are imputed with the mean values of each 
-property obtained from the main training set. Feature vectors that are created using 
-Alphafold proteins and PDB structures can be found under related folders. Imputation and
-structure sources are given at the end of each file name, hence is not written separately 
-here.
+The files in these folders concerns the various analyses conducted throughout the ASCARIS paper. They are mainly used to train-test machine learning models in the use-case application of ASCAIRS for variant effect prediction. Each file has a _raw and _imputed version. In the latter one, tempty values are imputed with the mean values of each property in the training set. Imputed versions are used in the VEP analysis. Feature vectors that are created using Alphafold proteins and PDB structures can be found under 2 different folders. Imputation and structural source info (PDB or Alphafold) are given at the end of each file name, hence is not written separately here, in order not to clutter the list.
 
-- **training_uptodate_full.txt** : Full training dataset obtained from UniProt, PMD and ClinVar.
-- **training_uptodate_full_2014selected** : 2014 subset of the training set.
-- **training_uptodate_full_2014selected_wo_mt** : 2014 subset of the training set, test datapoints from MutationTaster removed.
-- **training_uptodate_full_2014selected_wo_psnp** : 2014 subset of the training set, test datapoints from PredictSNP removed.
-- **training_uptodate_full_2014selected_wo_swiss** : 2014 subset of the training set, test datapoints from SwissVar removed.
-- **training_uptodate_full_2014selected_wo_varibench** : 2014 subset of the training set, test datapoints from Varibench removed.
-- **training_uptodate_full_pdb_imputed_wo3genes** : Imputed PDB training feature vector without datapoints from BRCA1, P53 and CALM1. File is zipped due to size limitations.
-- **training_uptodate_full_pdb_raw_wo3genes** : Non-imputed PDB training feature vector without datapoints from BRCA1, P53 and CALM1.
-- **training_uptodate_full_alphafold_imputed_wo3genes** : Imputed AlphaFold training feature vector without datapoints from BRCA1, P53 and CALM1. File is zipped due to size limitations.
-- **training_uptodate_full_alphafold_raw_wo3genes** : Non-imputed AlphaFold training feature vector without datapoints from BRCA1, P53 and CALM1.
-- **dms_test_pdb_brca1_imputed** : Feature vector created for benchmarking BRCA1 variations. 
-- **dms_test_pdb_calm1** : Feature vector created for benchmarking CALM1 variations.
-- **dms_test_pdb_p53** : Feature vector created for benchmarking P53 variations.
-- **mutationtaster_test** : Benchmark set obtained from MutationTaster data.
-- **psnp_test** : Benchmark set obtained from PredictSNP database.
-- **swiss_test** : Benchmark set obtained from SwissVar database.
-- **varibench_test** : Benchmark set obtained from VariBench database.
+- **training_uptodate_full.txt** : Full model training dataset obtained from UniProt, PMD and ClinVar. This dataset was used to produce the results given in Table 2 of the paper. This dataset has also been used to extract statistics given in Figure 3 and 4 of the paper.
+- **training_uptodate_full_2014selected** : 2014 subset of the model training dataset.
+- **training_uptodate_full_2014selected_wo_mt** : 2014 subset of the model training dataset, test datapoints from MutationTaster are removed. This dataset was used to produce the results given in Table 3 of the paper.
+- **training_uptodate_full_2014selected_wo_psnp** : 2014 subset of the model training dataset, test datapoints from PredictSNP are removed. This dataset was used to produce the results given in Table S6 of the paper.
+- **training_uptodate_full_2014selected_wo_swiss** : 2014 subset of the model training dataset, test datapoints from SwissVar are removed. This dataset was used to produce the results given in Table S6 of the paper.
+- **training_uptodate_full_2014selected_wo_varibench** : 2014 subset of the model training set, test datapoints from Varibench are removed. This dataset was used to produce the results given in Table S6 of the paper.
+- **training_uptodate_full_pdb_imputed_wo3genes** : Imputed PDB model training dataset; without datapoints from BRCA1, P53 and CALM1 genes, to be used in the DMS benchmark. File is zipped due to size limitation. This dataset was used to produce the results given in Figure 5 of the paper.
+- **training_uptodate_full_alphafold_imputed_wo3genes** : Imputed AlphaFold model training dataset; without datapoints from BRCA1, P53 and CALM1 genes, to be used in the DMS benchmark. File is zipped due to size limitation. This dataset was used to produce the results given in Figure 5 of the paper.
+- **dms_test_pdb_brca1** : Model test dataset created for benchmarking BRCA1 variations in the DMS benchmark. This dataset was used to produce the results given in Figure 5 of the paper.
+- **dms_test_pdb_calm1** : Model test dataset created for benchmarking CALM1 variations in the DMS benchmark. This dataset was used to produce the results given in Figure 5 of the paper.
+- **dms_test_pdb_p53** : Model test dataset created for benchmarking P53 variations in the DMS benchmark. This dataset was used to produce the results given in Figure 5 of the paper.
+- **mutationtaster_test** : Model test dataset for the MutationTaster benchmark. This dataset was used to produce the results given in Table 3 of the paper.
+- **psnp_test** : Model test dataset for the PredictSNP benchmark. This dataset was used to produce the results given in Table S6 of the paper.
+- **swiss_test** : Model test dataset for the SwissVar benchmark. This dataset was used to produce the results given in Table S6 of the paper.
+- **varibench_test** : Model test dataset for the VariBench benchmark. This dataset was used to produce the results given in Table S6 of the paper.
 
 
 ### Reproducible run of ASCARIS to generate the SAV representation datasets used in different parts of the study
