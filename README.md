@@ -59,27 +59,26 @@ Results (output) of ASCARIS runs can be found in the **out_files** folder.
   
 ## ASCARIS Installation & Usage
 
-This section intends to guide the users on how to install and run ASCARIS to produce SAV representations. 
+This section intends to guide the users on how to install and run ASCARIS to produce numerical SAV representations. 
 
 Please (i) clone this repository to your local server, and (ii) download all the requirements by running the following code:
 ```
 pip install -r requirements.txt
 
 ```
-Please unzip required files prior to running the code as described in the **Input Files** section.
-ASCARIS can be run in three ways.
+Please unzip required files as described in the **Input Files** section prior to running the code. All is set at this point. ASCARIS can be run in three different settings:
 
-1. Run ASCARIS for only one SAV datapoint:
+1. Running ASCARIS for only one SAV datapoint:
 
 ```
 python3 code/main.py -s 1 -i Q00889-H-85-D -impute True
 ```
-2. Run ASCARIS for more than one datapoints:
+2. Running ASCARIS for more than one datapoints:
 ```
 python3 code/main.py -s 2 -i 'Q00889-H-85-D,Q16363-Y-498-H' impute False
 ```
 
-3. Run ASCARIS on a tab-separated file containing SAV data. Please see sample_input.txt for the format.
+3. Running ASCARIS using a tab-separated file containing the SAV data points. Please see sample_input.txt for the format.
 ```
 python3 code/main.py -s 2 -i input_files/sample_input.txt
 ```
