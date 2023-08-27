@@ -20,7 +20,7 @@ The files in this directory concerns the various analyses conducted throughout t
 
 ### Reproducible run of ASCARIS to generate the SAV representation datasets used in different parts of the study
 
-## Option 1: Using PDB structures (imputing True)
+#### Option 1: Using PDB structures (imputing True)
 
 - python3 code/main.py -s 1 -i training_uptodate_full.txt -impute True
 - python3 code/main.py -s 1 -i training_uptodate_full_2014selected.txt -impute True
@@ -38,7 +38,7 @@ The files in this directory concerns the various analyses conducted throughout t
 - python3 code/main.py -s 1 -i swiss_test.txt -impute True
 - python3 code/main.py -s 1 -i varibench_test.txt -impute True
 
-## Option 2: Using Alphafold structures (imputing True)
+#### Option 2: Using Alphafold structures (imputing True)
 
 - python3 code/main.py -s 2 -i training_uptodate_full.txt -impute True
 - python3 code/main.py -s 2 -i training_uptodate_full_2014selected.txt -impute True
