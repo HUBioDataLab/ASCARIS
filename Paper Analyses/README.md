@@ -1,7 +1,7 @@
 ### Datasets in the 'Paper Analyses' folder
 The files in this directory concerns the various analyses conducted throughout the ASCARIS paper. They are mainly used to train-test machine learning (ML) models in the use-case application of ASCARIS for variant effect prediction. Datasets (ASCARIS feature vectors created for various SAV datasets/benchmarks) that are created using Alphafold proteins and PDB structures can be found under 2 different folders (folder names are "PDB" and "Alphafold", as well). In these folders, each file has a _raw and _imputed version. In the latter one, empty values are imputed with the mean values of each property in the training set. Imputed versions are used in the VEP analysis. Imputation and structural source info (PDB or Alphafold) are given at the end of each file name, hence is not written separately here, in order not to clutter the list. There is a third folder named "ASCARIS_ML-based-VEP_scripts_files" which contain MATLAB scripts written to train and test VEP models.
 
-- **training_uptodate_full.txt** : Full model training dataset obtained from UniProt, PMD and ClinVar. This dataset was used to produce the results given in Table 2 of the paper. This dataset has also been used to extract statistics given in Figure 3 and 4 of the paper.
+- **training_uptodate_full** : Full model training dataset obtained from UniProt, PMD and ClinVar. This dataset was used to produce the results given in Table 2 of the paper. This dataset has also been used to extract statistics given in Figure 3 and 4 of the paper.
 - **training_uptodate_full_2014selected** : 2014 subset of the model training dataset.
 - **training_uptodate_full_2014selected_wo_mt** : 2014 subset of the model training dataset, test datapoints from MutationTaster are removed. This dataset was used to produce the results given in Table 3 of the paper.
 - **training_uptodate_full_2014selected_wo_psnp** : 2014 subset of the model training dataset, test datapoints from PredictSNP are removed. This dataset was used to produce the results given in Table S6 of the paper.
@@ -19,4 +19,40 @@ The files in this directory concerns the various analyses conducted throughout t
 
 
 ### Reproducible run of ASCARIS to generate the SAV representation datasets used in different parts of the study
+
+## Option 1: Using PDB structures (imputing True)
+
+- python3 code/main.py -s 1 -i training_uptodate_full.txt -impute True
+- python3 code/main.py -s 1 -i training_uptodate_full_2014selected.txt -impute True
+- python3 code/main.py -s 1 -i training_uptodate_full_2014selected_wo_mt.txt -impute True
+- python3 code/main.py -s 1 -i training_uptodate_full_2014selected_wo_psnp.txt -impute True
+- python3 code/main.py -s 1 -i training_uptodate_full_2014selected_wo_swiss.txt -impute True
+- python3 code/main.py -s 1 -i training_uptodate_full_2014selected_wo_varibench.txt -impute True
+- python3 code/main.py -s 1 -i training_uptodate_full_pdb_imputed_wo3genes.txt -impute True
+- python3 code/main.py -s 1 -i training_uptodate_full_alphafold_imputed_wo3genes.txt -impute True
+- python3 code/main.py -s 1 -i dms_test_pdb_brca1.txt -impute True
+- python3 code/main.py -s 1 -i dms_test_pdb_calm1.txt -impute True
+- python3 code/main.py -s 1 -i dms_test_pdb_p53.txt -impute True
+- python3 code/main.py -s 1 -i mutationtaster_test.txt -impute True
+- python3 code/main.py -s 1 -i psnp_test.txt -impute True
+- python3 code/main.py -s 1 -i swiss_test.txt -impute True
+- python3 code/main.py -s 1 -i varibench_test.txt -impute True
+
+## Option 2: Using Alphafold structures (imputing True)
+
+- python3 code/main.py -s 2 -i training_uptodate_full.txt -impute True
+- python3 code/main.py -s 2 -i training_uptodate_full_2014selected.txt -impute True
+- python3 code/main.py -s 2 -i training_uptodate_full_2014selected_wo_mt.txt -impute True
+- python3 code/main.py -s 2 -i training_uptodate_full_2014selected_wo_psnp.txt -impute True
+- python3 code/main.py -s 2 -i training_uptodate_full_2014selected_wo_swiss.txt -impute True
+- python3 code/main.py -s 2 -i training_uptodate_full_2014selected_wo_varibench.txt -impute True
+- python3 code/main.py -s 2 -i training_uptodate_full_pdb_imputed_wo3genes.txt -impute True
+- python3 code/main.py -s 2 -i training_uptodate_full_alphafold_imputed_wo3genes.txt -impute True
+- python3 code/main.py -s 2 -i dms_test_pdb_brca1.txt -impute True
+- python3 code/main.py -s 2 -i dms_test_pdb_calm1.txt -impute True
+- python3 code/main.py -s 2 -i dms_test_pdb_p53.txt -impute True
+- python3 code/main.py -s 2 -i mutationtaster_test.txt -impute True
+- python3 code/main.py -s 2 -i psnp_test.txt -impute True
+- python3 code/main.py -s 2 -i swiss_test.txt -impute True
+- python3 code/main.py -s 2 -i varibench_test.txt -impute True
 
