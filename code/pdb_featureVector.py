@@ -168,7 +168,7 @@ def pdb(input_set, mode, impute):
         not_match_in_uniprot = data[(data.uniprotSequence == 'nan') | (data.wt_sequence_match == 'nan')]
         uniprot_matched = data[(data.uniprotSequence != 'nan') & (data.wt_sequence_match != 'nan')]
         up = uniprot_matched.at[i, 'uniprotID']
-		data = None
+        data = None
 
         print('You have %d data points that failed to match a UniProt Sequence\nProceeding with %d remaining...\n'
               % (len(not_match_in_uniprot.drop_duplicates(['datapoint'])),
