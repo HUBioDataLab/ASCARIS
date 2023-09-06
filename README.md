@@ -68,7 +68,8 @@ python3 code/main.py -s 2 -i input_files/sample_input.txt
 
 Files that are necessary to run the ASCARIS tool are found under the **input_files** folder.
 
-- **swissmodel_structures.txt.zip** : Includes summary file for Swiss-Model structures. Swiss-Model summary (INDEX-metadata) files are downloaded separately for each organism from https://swissmodel.expasy.org/repository, and merged into a single file by running create_swissmodelSummary.py code file. Generated file is uploaded to GitHub as a zip file, thus **it must be unzipped to input_files folder prior to usage**. Alternatively it can be downloaded [here](https://drive.google.com/drive/u/1/folders/1pJyXcguupyGggl25fzbRWwwqC6qUbDka). If needed, the user can create an updated file by running script **create_swissmodelSummary.py** in the directory in which newly downloaded Swiss-Model meta-data is found (folder_to_meta_data). Example command line is given below. Relevant output file will be created under /input_files.
+- **swissmodel_structures.txt.zip** : Includes summary file for Swiss-Model structures. Swiss-Model summary (INDEX-metadata) files are downloaded separately for each organism from https://swissmodel.expasy.org/repository, and merged into a single file by running create_swissmodelSummary.py code file. Resulting file is uploaded to GitHub as a zip file due to size limitations, thus **please unzip this file to input_files folder prior to running ASCARIS**.
+-   Alternatively it can be downloaded [here](https://drive.google.com/drive/u/1/folders/1pJyXcguupyGggl25fzbRWwwqC6qUbDka). If needed, the user can create an updated file by running script **create_swissmodelSummary.py** in the directory in which newly downloaded Swiss-Model meta-data is found (folder_to_meta_data). Example command line is given below. Resulting output file will be created under /input_files.
 ```
 cd ASCARIS
 python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
@@ -81,7 +82,8 @@ python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
 
 - **H_sapiens_interfacesHQ.txt** :  High confidence interfaces downloaded from [Interactome Insider](http://interactomeinsider.yulab.org/downloads.html) for *Homo sapiens*
 
-- **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). **Please download the '.tar' file to the input_files folder** and **run get_alphafoldStructures.py** to untar the structures and create alphafold_summary file. The current folder in this repository contains only 100 AlphaFold model files for demo purposes (due to file size limitation), hence the users need to download the complete set of AlphaFold structures prior to running ASCARIS. Example command line is given below.
+- **alphafold_structures** : This folder is designated to contain Alphafold structure files. **Please download the '.tar' file from [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/) to the input_files folder and untar here**. Summary file (alphafold_summary) is provided in the input files folder for v4 build. If you are using a build different than the currently present in ASCARIS repo (v4), **run get_alphafoldStructures.py** to untar the structures and create a new alphafold_summary file. The current alphafold_structures folder in this repository contains only 100 AlphaFold model files for demo purposes (due to file size limitation), hence the users need to untar the complete set of AlphaFold structures here prior to running ASCARIS. Example command line for build v4 is given below.
+  
 ```
 cd ASCARIS
 python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN_v4.tar
