@@ -11,7 +11,27 @@ import gzip
 from pathlib import Path
 from Bio.Align import substitution_matrices
 aligner = Align.PairwiseAligner()
+def convert_non_standard_amino_acids(sequence):
+    """
+    Convert non-standard or ambiguous amino acid codes to their closest relatives.
+    """
 
+    # Define a dictionary to map non-standard codes to standard amino acids
+    conversion_dict = {
+        'B': 'D',  # Aspartic Acid (D) is often used for B (Asx)
+        'Z': 'E',  # Glutamic Acid (E) is often used for Z (Glx)
+        'X': 'A',  # Alanine (A) is a common placeholder for unknown/ambiguous
+        'U': 'C',  # Cysteine (C) is often used for Selenocysteine (U)
+        'J': 'L',  # Leucine (L) is often used for J (Leu/Ile)
+        'O': 'K',  # Lysine (K) is often used for O (Pyrrolysine)
+        # '*' or 'Stop' represents a stop codon; you may replace with '' to remove
+        '*': '',
+    }
+
+    # Replace non-standard codes with their closest relatives
+    converted_sequence = ''.join([conversion_dict.get(aa, aa) for aa in sequence])
+
+    return converted_sequence
 def distance(x1, y1, z1, x2, y2, z2):
     d = math.sqrt(math.pow(x2 - x1, 2) +
                   math.pow(y2 - y1, 2) +
@@ -186,6 +206,7 @@ def get_coords(annot, alignments, coords, resnums_for_sasa, mode):
 
 
 def get_alignments_3D(identifier, model_num, pdb_path, pdbSequence, source, chain, pdbID, mode, path_3D_alignment,file_format = 'gzip'):
+    pdbSequence = convert_non_standard_amino_acids(pdbSequence)
     if mode == 1:
         atomSequence = ''
         coords = []
@@ -208,6 +229,7 @@ def get_alignments_3D(identifier, model_num, pdb_path, pdbSequence, source, chai
                         resnums_for_sasa.append(line[22:26].strip())
 
         f = open(Path(path_3D_alignment / f'{identifier}_{pdbID}_{str(chain)}_alignment.txt'),"w")
+        atomSequence = convert_non_standard_amino_acids(atomSequence)
 
         aligner.mode = 'local'
         aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
@@ -252,6 +274,7 @@ def get_alignments_3D(identifier, model_num, pdb_path, pdbSequence, source, chai
             aligner.substitution_matrix = substitution_matrices.load("BLOSUM62")
             aligner.open_gap_score = -11
             aligner.extend_gap_score = -1
+            atomSequence = convert_non_standard_amino_acids(atomSequence)
             alignments = aligner.align(pdbSequence, atomSequence)
             alignments = (list(alignments))
             for alignment in alignments:

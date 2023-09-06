@@ -167,7 +167,8 @@ def pdb(input_set, mode, impute):
         data_size = len(data.drop_duplicates(['datapoint']))
         not_match_in_uniprot = data[(data.uniprotSequence == 'nan') | (data.wt_sequence_match == 'nan')]
         uniprot_matched = data[(data.uniprotSequence != 'nan') & (data.wt_sequence_match != 'nan')]
-        data = None
+        up = uniprot_matched.at[i, 'uniprotID']
+		data = None
 
         print('You have %d data points that failed to match a UniProt Sequence\nProceeding with %d remaining...\n'
               % (len(not_match_in_uniprot.drop_duplicates(['datapoint'])),
@@ -232,13 +233,13 @@ def pdb(input_set, mode, impute):
                         filename.rename(filename_replace_ext)
 
                     file = Path(path_to_output_files / 'pdb_structures' / f'{search}.pdb')
-
                     base = os.path.splitext(str(file))[0]
                     base = '/'.join(base.split('/')[0:-1]) + '/pdb' + base.split('/')[-1]
                     os.rename(file, base + ".ent")
                     file = base + '.ent'
 
                 resolution_method = parser.get_structure(search, file)
+
                 for record in SeqIO.parse(file, "pdb-seqres"):
                     if record.dbxrefs[0].split(':')[0] == 'UNP':
                         pdb_fasta.at[index, 'pdbID'] = record.id.split(':')[0]
@@ -248,6 +249,80 @@ def pdb(input_set, mode, impute):
                         pdb_info.at[index, 'pdbID'] = record.id.split(':')[0]
                         pdb_info.at[index, 'chain'] = record.annotations["chain"]
                         pdb_info.at[index, 'resolution'] = resolution_method.header['resolution']
+                    else:
+                        def fetch_uniprot_ids(pdb_code):
+                            response = requests.get(f"https://www.ebi.ac.uk/pdbe/api/mappings/uniprot/{search}")
+
+                            response.raise_for_status()  # Check for a successful response
+                            data = response.json()
+
+                            return list(list(list(data.values())[0].values())[0].keys())
+
+                        for search in pdbs:
+                            # Step 1: Fetch the PDB file
+                            pdb_url = f"https://files.rcsb.org/download/{search}.pdb"
+
+                            try:
+                                response = requests.get(pdb_url)
+                                response.raise_for_status()  # Check for a successful response
+                            except:
+                                continue  # Skip to the next PDB code if fetching fails
+
+                            # Step 2: Parse the PDB file from memory
+                            pdb_data = response.text
+                            pdb_parser = PDBParser(QUIET=True)  # QUIET=True suppresses warnings
+                            pdb_file_content = StringIO(pdb_data)
+                            structure = pdb_parser.get_structure(search, pdb_file_content)
+                            ppb = PPBuilder()
+                            pdb_data_list = pdb_data.split('\n')
+                            pdb_data_list_sequence = [i for i in pdb_data_list if i.startswith('SEQRES')]
+                            pdb_data_list_sequence = [list(filter(None, i.split(' '))) for i in pdb_data_list_sequence]
+                            seqs = {}
+                            for i in pdb_data_list_sequence:
+                                if i[2] in seqs.keys():
+                                    seqs[i[2]] += i[4:]
+                                else:
+                                    seqs[i[2]] = i[4:]
+
+                            for key, val in seqs.items():
+                                seqs[key] = ''.join([threeToOne(i) for i in val])
+                            pdb_data_list = [i for i in pdb_data_list if i.startswith('DBREF')]
+                            pdb_data_list = [[list(filter(None, i.split(' '))) for j in i.split(' ') if j == 'UNP'] for
+                                             i in pdb_data_list]
+                            pdb_data_list = [i for i in pdb_data_list if i != []]
+                            pdb_data_list_uniprot = [[j[6] for j in i] for i in pdb_data_list]
+
+                            # pdb_data_list = [[list(filter(None,j)) for j in i] for i in pdb_data_list]
+                            pdb_data_list = [[j[2] for j in i] for i in pdb_data_list]
+                            pdb_data_list = [i[0] for i in pdb_data_list]
+                            for model in structure:
+                                for pp in ppb.build_peptides(model):
+                                    sequence = pp.get_sequence()
+
+                                for chain, up in zip(model, pdb_data_list_uniprot):
+                                    chain_id = chain.get_id()
+                                    # Extract UniProt ID if available in the chain's annotations
+                                    uniprot_ids = fetch_uniprot_ids(search)
+                                    # Get the resolution from the PDB header
+                                    header = structure.header
+                                    resolution = header.get('resolution', 'N/A')
+                                    if chain_id in pdb_data_list:
+                                        # Print UniProt IDs, chain ID, and resolution for the current model
+                                        chain_id = chain.get_id()
+                                        # st.write(f"---- Information for Chain {chain_id} in Model {i} ----")
+                                        # st.write(f"UniProt IDs: {', '.join(uniprot_ids)}")
+                                        # st.write(f"Chain ID: {chain_id}")
+                                        # st.write(f"PDB ID: {search.upper()}")
+                                        # st.write(f"Resolution: {resolution}")
+                                        # st.write(f"Sequence: {sequence}")
+                                        pdb_fasta.at[index, 'pdbID'] = search
+                                        pdb_fasta.at[index, 'chain'] = chain_id
+                                        pdb_fasta.at[index, 'pdbSequence'] = str(seqs[chain_id])
+                                        pdb_info.at[index, 'uniprotID'] = ', '.join(up)
+                                        pdb_info.at[index, 'pdbID'] = search
+                                        pdb_info.at[index, 'chain'] = chain_id
+                                        pdb_info.at[index, 'resolution'] = resolution
+                                        index += 1
                     index += 1
             except:
                 IndexError
@@ -256,6 +331,7 @@ def pdb(input_set, mode, impute):
                 pdb_info.at[index, 'chain'] = 'nan'
                 pdb_info.at[index, 'resolution'] = 'nan'
             cnt +=1
+
         print()
         print('PDB file processing finished..')
         for filename in list(Path(path_to_output_files / 'pdb_structures').glob("*")):
@@ -274,6 +350,7 @@ def pdb(input_set, mode, impute):
                 FileNotFoundError
 
         uniprot_matched = pd.merge(uniprot_matched, pdb_info, on='uniprotID', how='left')
+
         uniprot_matched = uniprot_matched.astype(str)
         uniprot_matched = uniprot_matched.drop_duplicates()
 
@@ -443,7 +520,6 @@ def pdb(input_set, mode, impute):
         yes_pdb_no_match = after_up_pdb_alignment[
             (after_up_pdb_alignment.pdbID != 'nan') & (after_up_pdb_alignment.mutationPositionOnPDB == 'nan')]
         no_pdb = no_pdb.copy()
-
 
         print('PDB matching is completed...\n')
         print('SUMMARY')
@@ -846,7 +922,6 @@ def pdb(input_set, mode, impute):
                 if protein not in existing_modbase_models:
                     print('Downloading Modbase models for ', protein)
                     url = 'https://salilab.org/modbase/retrieve/modbase/?databaseID=' + protein
-                    print(url)
                     req = requests.get(url)
                     name = path_to_output_files / 'modbase_structures' /  f'{protein}.txt'
                     with open(name, 'wb') as f:
@@ -1343,6 +1418,8 @@ def pdb(input_set, mode, impute):
         aligner = Align.PairwiseAligner()
         print('Proceeding to 3D distance calculation...\n')
 
+
+
         data.domainEndonPDB = data.domainEndonPDB.astype(str)
         data.domainStartonPDB = data.domainStartonPDB.astype(str)
 
@@ -1370,6 +1447,10 @@ def pdb(input_set, mode, impute):
             uniprotID = data.at[i, 'uniprotID']
             pdbID = data.at[i, 'pdbID']
             alignments = get_alignments_3D(uniprotID, 'nan', pdb_path, pdbSequence, source, chain, pdbID, mode, Path(path_to_output_files / '3D_alignment'), file_format = 'gzip')
+
+
+
+
             mutPos = data.at[i, 'mutationPositionOnPDB']
             try:
                 coordMut = get_coords(mutPos, alignments , 'nan', 'nan', mode)[0]
@@ -1498,7 +1579,6 @@ def pdb(input_set, mode, impute):
         data.positions = data.positions.astype('str')
         for i in data.index:
             if (str(data.at[i, 'pos']) in data.at[i, 'positions']) and data.at[i, 'trsh4'] == 'surface':
-                print((str(data.at[i, 'pos']) in data.at[i, 'positions']))
                 data.at[i, 'threeState_trsh4_HQ'] = 'interface'
             elif (str(data.at[i, 'pos']) not in data.at[i, 'positions']) and data.at[i, 'trsh4'] == 'surface':
                 data.at[i, 'threeState_trsh4_HQ'] = 'surface'

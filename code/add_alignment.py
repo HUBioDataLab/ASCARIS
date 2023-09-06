@@ -4,10 +4,33 @@ from pathlib import Path
 
 aligner = Align.PairwiseAligner()
 from Bio.pairwise2 import format_alignment
+def convert_non_standard_amino_acids(sequence):
+    """
+    Convert non-standard or ambiguous amino acid codes to their closest relatives.
+    """
 
+    # Define a dictionary to map non-standard codes to standard amino acids
+    conversion_dict = {
+        'B': 'D',  # Aspartic Acid (D) is often used for B (Asx)
+        'Z': 'E',  # Glutamic Acid (E) is often used for Z (Glx)
+        'X': 'A',  # Alanine (A) is a common placeholder for unknown/ambiguous
+        'U': 'C',  # Cysteine (C) is often used for Selenocysteine (U)
+        'J': 'L',  # Leucine (L) is often used for J (Leu/Ile)
+        'O': 'K',  # Lysine (K) is often used for O (Pyrrolysine)
+        # '*' or 'Stop' represents a stop codon; you may replace with '' to remove
+        '*': '',
+    }
+
+    # Replace non-standard codes with their closest relatives
+    converted_sequence = ''.join([conversion_dict.get(aa, aa) for aa in sequence])
+
+    return converted_sequence
 
 def do_alignment(identifier, uniprotSequence, pdbSequence, alignment_path):
     #print(f'Aligning Datapoint: {identifier}')
+    uniprotSequence = convert_non_standard_amino_acids(uniprotSequence)
+    pdbSequence = convert_non_standard_amino_acids(pdbSequence)
+
     if len(pdbSequence) >= 1:
         f = open(Path(alignment_path / f'{identifier}_alignment.txt'),
                  "w")
@@ -25,6 +48,7 @@ def do_alignment(identifier, uniprotSequence, pdbSequence, alignment_path):
             alignment = (str(alignment).strip().split('\n'))
             alignment = [''.join(['.' if m == ' ' else m for m in x]) for x in alignment]
             alignment_list.append(alignment)
+
     return alignment_list
 
 
@@ -92,6 +116,7 @@ def mutation_position_on_pdb(alignment_list, pos):
         else:
             pdb_alignStatus = 'not_aligned'
             mutationPositionOnPDB = 'nan'
+
     return (pdb_alignStatus, mutationPositionOnPDB, startGap, alignment_list[which_alignment_to_go - 1])
 
 
@@ -324,6 +349,7 @@ def final_stage(df, annotation_list, alignment_path):
                 str(df.at[i, 'domStart']) != '-1.0' or str(df.at[i, 'domEnd']) != '-1.0':
             df.at[i, 'domainStartonPDB'] = 'nan'
             df.at[i, 'domainEndonPDB'] = 'nan'
+
     return df
 
 def alignment(dataframe_to_align, annotation_list, alignment_path):

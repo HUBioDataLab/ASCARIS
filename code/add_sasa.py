@@ -114,7 +114,7 @@ def sasa(source, pdbID, uniprotID, sasa_pos, wt, mode, path_to_output_files,file
                         files = open(filename, 'r')
                         file = files.readlines()
                         for k in file:
-                            if str(k.strip()[10:13]) == str(sasa_pos):
+                            if str(k.strip()[10:13]).strip() == str(sasa_pos):
                                 residue = str(k[4:7].strip())
                                 if wt == threeToOne(residue):
                                     sasa = str(k[22:28]).strip('\n')
