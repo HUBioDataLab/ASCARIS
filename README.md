@@ -26,37 +26,8 @@ Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Prot
 
 All files that are used in the analyses presented in the ASCARIS paper are presented under the **Paper Analyses** directory. "PDB" and "AlphaFold" folders contain SAV feature vector (reprsentation) files for numerous SAV datasets that are created using PDB structures and AlphaFold models, respectively (more information at: https://github.com/HUBioDataLab/ASCARIS/Paper Analyses).
 
-### Input Files 
-
-Files that are necessary to run the ASCARIS tool are found under the **input_files** folder.
-
-- **swissmodel_structures.txt.zip** : Includes summary file for Swiss-Model structures. Swiss-Model summary (INDEX-metadata) files are downloaded separately for each organism from https://swissmodel.expasy.org/repository, and merged into a single file by running create_swissmodelSummary.py code file. Generated file is uploaded to GitHub as a zip file, thus **it must be unzipped to input_files folder prior to usage**. Alternatively it can be downloaded [here](https://drive.google.com/drive/u/1/folders/1pJyXcguupyGggl25fzbRWwwqC6qUbDka). If needed, the user can create an updated file by running script **create_swissmodelSummary.py** in the directory in which newly downloaded Swiss-Model meta-data is found (folder_to_meta_data). Example command line is given below. Relevant output file will be created under /input_files.
-```
-cd ASCARIS
-python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
-```
-
-- **domains.txt** : Includes InterPro domains simplified as in the following order *(tab separated)* --> 
-  [uniprotID      domainID        domainStartPosition     domainEndPosition]
-  
-- **significant_domains** :  Selected domains from *domains.txt* file according to the results of the Fisher's exact test, which was applied to all domains in the training test to assess their significance with respect to the variant effect outcome (neutral or deleterious). p_value is chosen as 0.01.
-
-- **H_sapiens_interfacesHQ.txt** :  High confidence interfaces downloaded from [Interactome Insider](http://interactomeinsider.yulab.org/downloads.html) for *Homo sapiens*
-
-- **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). **Please download the '.tar' file to the input_files folder** and **run get_alphafoldStructures.py** to untar the structures and create alphafold_summary file. The current folder in this repository contains only 100 AlphaFold model files for demo purposes (due to file size limitation), hence the users need to download the complete set of AlphaFold structures prior to running ASCARIS. Example command line is given below.
-```
-cd ASCARIS
-python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN_v4.tar
-```
-
-- **alphafold_summary**: Processed data for AlphaFold structures. Includes protein identifier, chain id, sequence, model count for each entry.
-
-### Output Files 
-
-Results (output) of ASCARIS runs can be found in the **out_files** folder.
-
 &nbsp;
-  
+
 ## ASCARIS Installation & Usage
 
 This section intends to guide the users on how to install and run ASCARIS to produce numerical SAV representations. 
@@ -92,6 +63,38 @@ python3 code/main.py -s 2 -i input_files/sample_input.txt
 - *Option 2: Enter tab-separated file path*
 
 -impute :  Boolean for the imputation of NaN values in the dataset. Imputation is done by taking the median value of corresponding column/feature. Default: True </br>
+
+### Input Files 
+
+Files that are necessary to run the ASCARIS tool are found under the **input_files** folder.
+
+- **swissmodel_structures.txt.zip** : Includes summary file for Swiss-Model structures. Swiss-Model summary (INDEX-metadata) files are downloaded separately for each organism from https://swissmodel.expasy.org/repository, and merged into a single file by running create_swissmodelSummary.py code file. Generated file is uploaded to GitHub as a zip file, thus **it must be unzipped to input_files folder prior to usage**. Alternatively it can be downloaded [here](https://drive.google.com/drive/u/1/folders/1pJyXcguupyGggl25fzbRWwwqC6qUbDka). If needed, the user can create an updated file by running script **create_swissmodelSummary.py** in the directory in which newly downloaded Swiss-Model meta-data is found (folder_to_meta_data). Example command line is given below. Relevant output file will be created under /input_files.
+```
+cd ASCARIS
+python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
+```
+
+- **domains.txt** : Includes InterPro domains simplified as in the following order *(tab separated)* --> 
+  [uniprotID      domainID        domainStartPosition     domainEndPosition]
+  
+- **significant_domains** :  Selected domains from *domains.txt* file according to the results of the Fisher's exact test, which was applied to all domains in the training test to assess their significance with respect to the variant effect outcome (neutral or deleterious). p_value is chosen as 0.01.
+
+- **H_sapiens_interfacesHQ.txt** :  High confidence interfaces downloaded from [Interactome Insider](http://interactomeinsider.yulab.org/downloads.html) for *Homo sapiens*
+
+- **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). **Please download the '.tar' file to the input_files folder** and **run get_alphafoldStructures.py** to untar the structures and create alphafold_summary file. The current folder in this repository contains only 100 AlphaFold model files for demo purposes (due to file size limitation), hence the users need to download the complete set of AlphaFold structures prior to running ASCARIS. Example command line is given below.
+```
+cd ASCARIS
+python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN_v4.tar
+```
+
+- **alphafold_summary**: Processed data for AlphaFold structures. Includes protein identifier, chain id, sequence, model count for each entry.
+
+### Output Files 
+
+Results (output) of ASCARIS runs can be found in the **out_files** folder.
+
+&nbsp;
+
 
 ### Sample Run 
 
