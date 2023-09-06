@@ -46,7 +46,7 @@ python3 code/create_swissmodelSummary.py -folder_name folder_to_meta_data
 - **alphafold_structures** : This folder contains [AlphaFold Human proteome predictions](http://ftp.ebi.ac.uk/pub/databases/alphafold/latest/). **Please download the '.tar' file to the input_files folder** and **run get_alphafoldStructures.py** to untar the structures and create alphafold_summary file. The current folder in this repository contains only 100 AlphaFold model files for demo purposes (due to file size limitation), hence the users need to download the complete set of AlphaFold structures prior to running ASCARIS. Example command line is given below.
 ```
 cd ASCARIS
-python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN.tar
+python3 code/get_alphafoldStructures.py -file_name UP000005640_9606_HUMAN_v4.tar
 ```
 
 - **alphafold_summary**: Processed data for AlphaFold structures. Includes protein identifier, chain id, sequence, model count for each entry.
