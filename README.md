@@ -46,7 +46,7 @@ python3 code/main.py -s 1 -i Q00889-H-85-D -impute True
 ```
 2. Running ASCARIS for more than one datapoints:
 ```
-python3 code/main.py -s 2 -i 'Q00889-H-85-D,Q16363-Y-498-H' impute False
+python3 code/main.py -s 2 -i 'P41180-E-604-K, Q16363-Y-498-H' impute False
 ```
 
 3. Running ASCARIS using a tab-separated file containing the SAV data points. Please see sample_input.txt for the format.
