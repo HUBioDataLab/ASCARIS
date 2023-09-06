@@ -233,13 +233,13 @@ def pdb(input_set, mode, impute):
                         filename.rename(filename_replace_ext)
 
                     file = Path(path_to_output_files / 'pdb_structures' / f'{search}.pdb')
+
                     base = os.path.splitext(str(file))[0]
                     base = '/'.join(base.split('/')[0:-1]) + '/pdb' + base.split('/')[-1]
                     os.rename(file, base + ".ent")
                     file = base + '.ent'
 
                 resolution_method = parser.get_structure(search, file)
-
                 for record in SeqIO.parse(file, "pdb-seqres"):
                     if record.dbxrefs[0].split(':')[0] == 'UNP':
                         pdb_fasta.at[index, 'pdbID'] = record.id.split(':')[0]
@@ -331,7 +331,6 @@ def pdb(input_set, mode, impute):
                 pdb_info.at[index, 'chain'] = 'nan'
                 pdb_info.at[index, 'resolution'] = 'nan'
             cnt +=1
-
         print()
         print('PDB file processing finished..')
         for filename in list(Path(path_to_output_files / 'pdb_structures').glob("*")):
@@ -350,7 +349,6 @@ def pdb(input_set, mode, impute):
                 FileNotFoundError
 
         uniprot_matched = pd.merge(uniprot_matched, pdb_info, on='uniprotID', how='left')
-
         uniprot_matched = uniprot_matched.astype(str)
         uniprot_matched = uniprot_matched.drop_duplicates()
 
@@ -520,6 +518,7 @@ def pdb(input_set, mode, impute):
         yes_pdb_no_match = after_up_pdb_alignment[
             (after_up_pdb_alignment.pdbID != 'nan') & (after_up_pdb_alignment.mutationPositionOnPDB == 'nan')]
         no_pdb = no_pdb.copy()
+
 
         print('PDB matching is completed...\n')
         print('SUMMARY')
@@ -1418,8 +1417,6 @@ def pdb(input_set, mode, impute):
         aligner = Align.PairwiseAligner()
         print('Proceeding to 3D distance calculation...\n')
 
-
-
         data.domainEndonPDB = data.domainEndonPDB.astype(str)
         data.domainStartonPDB = data.domainStartonPDB.astype(str)
 
@@ -1447,10 +1444,6 @@ def pdb(input_set, mode, impute):
             uniprotID = data.at[i, 'uniprotID']
             pdbID = data.at[i, 'pdbID']
             alignments = get_alignments_3D(uniprotID, 'nan', pdb_path, pdbSequence, source, chain, pdbID, mode, Path(path_to_output_files / '3D_alignment'), file_format = 'gzip')
-
-
-
-
             mutPos = data.at[i, 'mutationPositionOnPDB']
             try:
                 coordMut = get_coords(mutPos, alignments , 'nan', 'nan', mode)[0]

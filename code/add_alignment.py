@@ -48,7 +48,6 @@ def do_alignment(identifier, uniprotSequence, pdbSequence, alignment_path):
             alignment = (str(alignment).strip().split('\n'))
             alignment = [''.join(['.' if m == ' ' else m for m in x]) for x in alignment]
             alignment_list.append(alignment)
-
     return alignment_list
 
 
@@ -116,7 +115,6 @@ def mutation_position_on_pdb(alignment_list, pos):
         else:
             pdb_alignStatus = 'not_aligned'
             mutationPositionOnPDB = 'nan'
-
     return (pdb_alignStatus, mutationPositionOnPDB, startGap, alignment_list[which_alignment_to_go - 1])
 
 
@@ -349,7 +347,6 @@ def final_stage(df, annotation_list, alignment_path):
                 str(df.at[i, 'domStart']) != '-1.0' or str(df.at[i, 'domEnd']) != '-1.0':
             df.at[i, 'domainStartonPDB'] = 'nan'
             df.at[i, 'domainEndonPDB'] = 'nan'
-
     return df
 
 def alignment(dataframe_to_align, annotation_list, alignment_path):
