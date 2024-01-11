@@ -2,6 +2,7 @@ import pdb_featureVector
 import alphafold_featureVector
 import argparse
 
+
 parser = argparse.ArgumentParser(description='ASCARIS')
 
 parser.add_argument('-s', '--source_option',
@@ -31,5 +32,3 @@ def run_featureVector(input_set, mode, impute):
 
 if __name__ == '__main__':
     run_featureVector(input_set, mode, impute)
-
-
