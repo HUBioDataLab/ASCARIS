@@ -3,12 +3,12 @@ import ssbio.utils
 import subprocess
 import ssbio
 import os.path as op
-from add_3Dalignment import *
 import os
 from pathlib import Path
 import gzip
 import shutil
-
+import streamlit as st
+from utils import *
 
 
 def run_freesasa(infile, outfile, include_hetatms=True, outdir=None, force_rerun=False, file_type = 'gzip'):
@@ -62,32 +62,21 @@ def calculate_freesasa(ID, model_num, existing_free_sasa, path_to_input,path_to_
                          Path(path_to_output_files / f'freesasa_files/{fullID}.txt'), include_hetatms=True,
                          outdir=None, force_rerun=False)
 
-def sasa(source, pdbID, uniprotID, sasa_pos, wt, mode, path_to_output_files,file_type = 'gzip'):
+def sasa(uniprotID, sasa_pos, wt, mode, filename, path_to_output_files, file_type = 'gzip'):
     if mode == 1:
-        sasa = 'nan'
-        for filename in list(Path(path_to_output_files / 'freesasa_files').glob("*")):
-            if source == 'PDB':
-                fname = str(filename).split('.')[0].split('/')[-1].upper()
-            elif source == 'MODBASE':
-                fname = str(filename).split('.')[0].split('/')[-1]
-            elif source == 'SWISSSMODEL':
-                fname = str(filename).split('_')[2]
-            if pdbID == fname:
-                files = open(filename, 'r')
-                file = files.readlines()
-                for k in file:
-
-                    if k.strip()[10:13] == sasa_pos:
-                        residue = str(k[4:7].strip())
-                        if wt == threeToOne(residue):
-                            sasa = str(k[22:28]).strip('\n')
-                            return (sasa)
-                        elif wt != threeToOne(residue):
-                            sasa = str(k[22:28]).strip('\n') + '*'
-                            return (sasa)
-                        else:
-                            return 'nan'  #######
-
+        files = open(filename, 'r')
+        file = files.readlines()
+        for k in file:
+            if str(k.strip()[10:13].strip()) == str(sasa_pos):
+                residue = str(k[4:7].strip())
+                if wt == threeToOne(residue):
+                    sasa = str(k[22:28]).strip('\n')
+                    return (sasa)
+                elif wt != threeToOne(residue):
+                    sasa = str(k[22:28]).strip('\n') + '*'
+                    return (sasa)
+                else:
+                    return 'nan'
     if mode == 2:
         if sasa_pos != np.NaN:
             sasa = 'nan'
