@@ -4,7 +4,7 @@ from Bio import SeqIO
 import xml.etree.ElementTree as ET
 
 def get_uniprot_seq(protein_id):
-    print('Fetching UniProt Sequences for ID: ', protein_id)
+    print('>> Fetching UniProt Sequences for ID: ', protein_id)
     baseUrl = "http://www.uniprot.org/uniprot/"
     currentUrl = baseUrl + protein_id + ".fasta"
     response = r.post(currentUrl)
@@ -19,7 +19,7 @@ def get_uniprot_seq(protein_id):
 
 
 def get_isoforms(protein_id):
-    print('Fetching UniProt Isoforms for ID: ', protein_id)
+    print('>> Fetching UniProt Isoforms for ID: ', protein_id)
     try:
         # a dictionary storing the sequence of your isoforms, key: accesion number, value: sequence
         isoforms = dict()
