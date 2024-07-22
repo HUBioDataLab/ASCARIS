@@ -4,6 +4,7 @@ ASCARIS (Annotation and StruCture-bAsed RepresentatIon of Single amino acid vari
 
 Please refer to our article for more information on the construction of feature vectors, statistical analysis of features, and machine learning models trained on ASCARIS representations to predict the effect of SAVs:
 </br>
+</br>
 Cankara, F., & Dogan, T. (2023). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *Computational and Structural Biotechnology Journal, 21*, 4743-4758. [Link](https://www.sciencedirect.com/science/article/pii/S200103702300329X)
 
 <p align="center"> 
