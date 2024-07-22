@@ -178,9 +178,9 @@ In ASCARIS representations, dimensions 1-5 correspond to datapoint identifier, 6
 
 &nbsp;
 
-## Please Refer to Our Pre-print for More Information:
+## Please Refer to Our Article for More Information:
 
-Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *bioRxiv*, 514934v1. [Link](https://www.biorxiv.org/content/10.1101/2022.11.03.514934v1)
+Cankara, F., & Dogan, T. (2023). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *Computational and Structural Biotechnology Journal, 21*, 4743-4758. [Link](https://www.sciencedirect.com/science/article/pii/S200103702300329X)
 
 &nbsp;
 
