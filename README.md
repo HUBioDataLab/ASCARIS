@@ -3,7 +3,7 @@
 ASCARIS (Annotation and StruCture-bAsed RepresentatIon of Single amino acid variations) is a tool for the featurization (i.e., quantitative representation) of SAVs, which could be used for a variety of purposes, such as predicting their functional effects or building multi-omics-based integrative models. ASCARIS utilizes the correspondence between the location of the SAV on the sequence and 30 different types of positional feature annotations (e.g., active/lipidation/glycosylation sites; calcium/metal/DNA binding, inter/transmembrane regions, etc.) from UniProt, along with structural features and the change in physicochemical properties, using models from PDB and AlphaFold-DB. It constructs a 74-dimensional feature set (including meta-data) to represent a given SAV. 
 
 Please refer to our pre-print article for more information on the construction of feature vectors, statistical analysis of features, and machine learning models trained on ASCARIS representations to predict the effect of SAVs:
-Cankara, F., & Dogan, T. (2022). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *bioRxiv*, 514934v1. [Link](https://www.biorxiv.org/content/10.1101/2022.11.03.514934v1)
+Cankara, F., & Dogan, T. (2023). ASCARIS: Positional Feature Annotation and Protein Structure-Based Representation of Single Amino Acid Variations. *bComputational and Structural Biotechnology Journal, 21*, 4743-4758. [Link](https://www.sciencedirect.com/science/article/pii/S200103702300329X)
 
 <p align="center"> 
 <img width="925" alt="ASCARIS_Overall_Workflow" src="https://github.com/HUBioDataLab/ASCARIS/assets/26777185/c0986b96-7a89-4cbc-b790-50f3fc03d287">
